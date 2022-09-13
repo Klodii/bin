@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Volume Control
+# if you have troubble with setting the default sink (output) use `pulsemixer` to set it
+
+# $2 is the second parameter that is given, if it is not given assign to NUM the value 5
+NUM="${2:-5}"
+
+# if using PulseAudio set to true, else if using alsa audio set to false
+PULSE=true
+
+if [ "$PULSE" = true ]; then
+    toggle() { pulsemixer --toggle-mute ;}
+    mute() { pulsemixer --mute ;}
+    up() { pulsemixer --change-volume +"$NUM" ;}
+    down() { pulsemixer --change-volume -"$NUM" ;}
+else
+    toggle() { amixer sset Master toggle ;}
+    mute() { amixer sset Master mute ; }
+    up() { amixer sset Master "$NUM"%+ ; }
+    down() { amixer sset Master "$NUM"%- ;}
+fi
+
+case "$1" in
+    toggle) toggle ;;
+    mute) mute ;;
+    up) up ;;
+    down) down ;;
+    *) notify-send "No command executed" -u critical -t 5000; exit 1 ;;
+esac #>/dev/null # this send all the output to /dev/null
+
+notify-send "Volume $1 ($NUM)"
