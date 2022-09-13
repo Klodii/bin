@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Needs sudo permissions
+
+# Gives a dmenu prompt to mount unmounted drives.
+# If tjey're in /etc/fstab, they'll be mounted automatically.
+# Otherwise, you'll be prompted to give a mountpoint from already existing directories.
+# If you input a novel directory, it will prompt you to create that directory.
+
+pgrep -x dmenu && exit
+
+
+## lsblk list all drives and partitions (-lp gives full location)
+## we grep "prat $" because only partitions can be mounted, not possible for "disk", and gives only partition that are not mounted
+
+mountable=$(lsblk -lp | grep "part $" | awk '{print $1, "(" $4 ")"}')
+[[ "$mountable" = "" ]] && exit 1
+chosen=$(echo "$mountable" | dmenu -i -p "Mount which drive?" | awk '{print $1}')
+[[ "$chosen" = "" ]] && exit 1
+## trying to mount the partition automatically, like said in the fist comment block
+sudo mount "$chosen" && exit 0
+## If the mount faile, you can choose the mount path
+
+# You may want to change the line below for more suggestions for mountin.
+# I.e. you can increase the depth of the search, or add directories.
+# This will increase the load time briefly though.
+
+## '2>/dev/null' sends all errors to /dev/null
+dirs=$(find /mnt /media /mount /home -type d -maxdepth 3 2>/dev/null)
+mountpoint=$(echo "$dirs" | dmenu -i -p "Type in mount point.")
+[[ "$mountpoint" = "" ]] && exit 1
+if [[ ! -d "mountpoint" ]]; then
+    mkdiryn=$(echo -e "No\nYes" | dmenu -i -p "$mountpoint does not exist. Create it?")
+    [[ "$mkdiryn" = Yes ]] && sudo mkdir -p "$mountpoint"
+fi
+# pgrep -x dunst kills the notification deamon that we use, in order to send the new notification.
+# If you use another nofitication deamon you need to change this part
+sudo mount $chosen $mountpoint && pgrep -x dunst && notify-send "$chosen mounte to $mountpoint mountpoint."
+
