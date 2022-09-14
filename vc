@@ -30,3 +30,7 @@ case "$1" in
 esac #>/dev/null # this send all the output to /dev/null
 
 notify-send "Volume $1 ($NUM)"
+
+# update the statusbar, it expect to have 'statubar' script in your PATH
+# update the signal of statusbar
+# pkill -RTMIN+10 statusbar
