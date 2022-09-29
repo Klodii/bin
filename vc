@@ -29,7 +29,13 @@ case "$1" in
     *) notify-send "No command executed" -u critical -t 5000; exit 1 ;;
 esac #>/dev/null # this send all the output to /dev/null
 
-notify-send "Volume $1 ($NUM)"
+if [ $(pulsemixer --get-mute) = 1 ]; then
+    volume="Mute"
+else
+    volume=$(pulsemixer --get-volume | awk '{print int($1 * 100/150)"%"}')
+fi
+
+notify-send "Volume $1 ($volume)"
 
 # update the statusbar, it expect to have 'statubar' script in your PATH
 # update the signal of statusbar
