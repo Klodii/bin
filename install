@@ -1,0 +1,3 @@
+cp -v vc /usr/local/bin/
+cp -v dm_mount /usr/local/bin/
+cp -v dm_unmount /usr/local/bin/

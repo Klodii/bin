@@ -35,7 +35,8 @@ else
     volume=$(pulsemixer --get-volume | awk '{print int($1 * 100/150)"%"}')
 fi
 
-notify-send "Volume $1 ($volume)"
+# notify-send "Volume $1 ($volume)"
+dunstify -a "volume_control" -u low -r 9090 -h int:value:"$volume" -i "volume-$1" "Volume: $volume" -t 2000
 
 # update the statusbar, it expect to have 'statubar' script in your PATH
 # update the signal of statusbar
