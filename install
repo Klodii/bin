@@ -1,3 +1,5 @@
 cp -v vc /usr/local/bin/
 cp -v dm_mount /usr/local/bin/
 cp -v dm_unmount /usr/local/bin/
+cp -v add_bookmark /usr/local/bin/
+cp -v paste_bookmark /usr/local/bin/

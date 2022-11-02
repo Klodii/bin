@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# This script show a list of bookmarks saved in $bookmark_path file and paste whatever is selected or typed
+
+# to paste bookmark we use xdotool that simulates mouse click and keystokes; to install it run `sudo apt install xdotool`.
+# we will use the `xdotool type` command to type whatever we have selected form the dmenu bar
+
+bookmark_path=~/.config/bookmark
+
+if [ -f $bookmark_path ]; then
+    xdotool type $(grep -v '^#' $bookmark_path | dmenu -i -l 50 | cut -d' ' -f1)
+else
+    dunstify "$bookmark_path does not exist" "Can't select a bookmark"
+fi

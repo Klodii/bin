@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# adde a bookmark to $bookmark_path file, to do so we use xclip -o to copy whatevere we have selected befor running the script
+
+added_notification() {
+    dunstify "Added to bookmark"
+}
+
+bookmark_path="$HOME/.config/bookmark"
+bookmark_to_add="$(xclip -o)"
+
+if grep -q "^$bookmark_to_add$" "$bookmark_path"; then
+    added_notification
+else
+    echo "$bookmark_to_add" >> "$bookmark_path"
+    added_notification
+fi
+
+
