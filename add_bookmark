@@ -3,7 +3,7 @@
 # adde a bookmark to $bookmark_path file, to do so we use xclip -o to copy whatevere we have selected befor running the script
 
 added_notification() {
-    dunstify "Added to bookmark"
+    dunstify $bookmark_to_add "Added to bookmark"
 }
 
 bookmark_path="$HOME/.config/bookmark"
