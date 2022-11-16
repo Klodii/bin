@@ -1,0 +1,4 @@
+#!/bin/bash
+# script that let you select, via fzf, the branch in witch to switch
+choosen=$(git branch | fzf)
+git checkout $choosen
