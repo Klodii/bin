@@ -1,4 +1,7 @@
 #!/bin/bash
 # script that let you select, via fzf, the branch in witch to switch
-choosen=$(git branch | fzf)
-git checkout $choosen
+choosen_full_name=$(git branch -a | fzf)
+# remove `remotes/origin/` if the branch is not in the local machine, otherwise git will
+# switch to the `remotes/origin/branch_name` in detached mode, but we want to create a local branch that points to the remote
+choosen_branch_name=$(echo $choosen_full_name | sed 's/remotes\/origin\///')
+git checkout $choosen_branch_name
