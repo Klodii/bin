@@ -1,0 +1,23 @@
+#!/bin/bash
+RED_FG=`tput setaf 1`
+GREEN_FG=`tput setaf 2`
+YELLOW_FG=`tput setaf 3`
+
+NC=`tput sgr0`
+
+search_text='breakpoint()|pdb.set_trace()'
+echo "Searching $YELLOW_FG $search_text $NC occurences..."
+occurences_count=$(git grep -E $search_text | wc -l)
+
+if (($occurences_count>0));
+then
+	in_files=$(git grep -E $search_text)
+	echo -e "${RED_FG}found $occurences_count occurences in the following files:\n$in_files"
+	echo "COMMIT ABORTED"
+	echo $NC
+	exit 1
+else
+	echo "${GREEN_FG}No occurences founded"
+	echo $NC
+	exit 0
+fi
