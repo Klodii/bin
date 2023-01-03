@@ -1,0 +1,6 @@
+#!/bin/bash
+# Linux rename, rename all files, in the current directory, in linux formatting:
+# no spaces (`_` instead), all characters in lower case.
+
+rename 'y/A-Z /a-z\_/' *
+
