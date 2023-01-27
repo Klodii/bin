@@ -1,0 +1,35 @@
+#!/bin/bash
+source utils
+
+log_info "Identifing your computer bluetooth drivers..."
+ALL_DRIVERS=`hcitool dev | sed '1d' | awk {'print $1'}`
+if [ $ALL_DRIVERS ]; then
+    echo " available drivers:"
+    echo "  $ALL_DRIVERS"
+else
+    exit_with_error "There are no drivers available"
+fi
+
+# Select the bluetooth
+log_info "Selecting bluetooth driver"
+NUMBER_OF_DRIVERS=`echo "$ALL_DRIVERS" | grep -c ^`
+if [ $NUMBER_OF_DRIVERS -gt 1 ]; then
+    echo " select the driver through dmenu..."
+    DRIVER=`echo $ALL_DRIVERS | dmenu -i -p "Select bluetooth driver"`
+else
+    echo " automatically select the only driver available"
+    DRIVER=$ALL_DRIVERS
+fi
+echo " selected driver $DRIVER"
+
+# Scan available devices
+hcitool -i $DRIVER scan
+## select the device to connect to
+###SELECTED_DEVICE
+
+# Trust the discovered device
+###bluetoothctl trust $SELECTED_DEVICE
+
+# Connect
+###bluetoothctl connect $SELECTED_DEVICE
+
