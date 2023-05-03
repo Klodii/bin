@@ -1,0 +1,12 @@
+#!/bin/bash
+# terminal-notifier is a macos notifier pacakge, if you are on linux you can use
+# notify-send
+
+youtube-dl -x --audio-format mp3 $1
+
+if [ $? -eq 0 ]; then
+    message='Finished downloading'
+else
+    message='Error downloading mp3'
+fi
+terminal-notifier -title 'mp3-download' -message "$message"
