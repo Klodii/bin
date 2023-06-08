@@ -1,0 +1,52 @@
+#!/bin/bash -
+SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
+
+function help {
+    # here-document used instead of echoing all lines
+   cat <<-HMESSAGE
+Explaing what the program does
+
+Syntax: $SCRIPT_NAME [-h] <arg1> <arg2>
+Options:
+    -h     Print this help and exit.
+HMESSAGE
+}
+
+function exit_w_error {
+    echo "$1"
+    exit 1
+} >&2 # redirect to STDERR
+
+# Get the options
+# -: is used to enable long arguments
+while getopts "h-:" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        - ) # Long arguments section
+            case $OPTARG in
+                help)
+                    help
+                    exit 0;;
+            esac
+            ;;
+        \?)
+            echo "Error: Invalid option"
+            exit 1;;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
+arg1="$1"
+arg2="$2"
+[ -z "$arg1" ] && exit_w_error "Arg1 missing"
+[ -z "$arg2" ] && exit_w_error "Arg2 missing"
+
+# check if a command we want to use does not exist
+# at the moment we call the command with -V, that returns the version.
+# but we could do something more sophisticate and search in all the PATH if the
+# command exists. Like we did in .zshrc for 'nvim'
+
+# redirect STDOUT and STDERR to /dev/null, in order to avoid echoing something
+rg -V >&/dev/null || exit_w_error "rg command is not installed"
