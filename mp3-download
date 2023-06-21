@@ -1,6 +1,10 @@
 #!/bin/bash
+source utils
+
 # terminal-notifier is a macos notifier pacakge, if you are on linux you can use
 # notify-send
+
+is_installed 'youtube-dl' || exit_with_error 'youtube-dl is not installed'
 
 youtube-dl -x --audio-format mp3 "$1"
 
