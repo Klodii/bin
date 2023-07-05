@@ -9,6 +9,11 @@ Explaing what the program does
 Syntax: $SCRIPT_NAME [-h] <arg1> <arg2>
 Options:
     -h     Print this help and exit.
+    -n
+
+Long option:
+    --help     Print this help and exit.
+    --name     Example of long option that accepts a value
 HMESSAGE
 }
 
@@ -24,11 +29,26 @@ while getopts "h-:" option; do
         h )
             help
             exit 0;;
+        n )
+            NAME=$OPTARG;;
         - ) # Long arguments section
             case $OPTARG in
                 help)
                     help
                     exit 0;;
+                name=*) # case where the user usese the = to separate the value
+                    # through parameter expanspansion string manipulation
+                    # we remove all the character previous, and including, the =
+                    NAME="${OPTARG#*=}";;
+                name ) # cases where the user uses the space to separate the value
+                    # in this case we get the value passed by using OPTIND that
+                    # holds the index of the next parameter, with ! we retrive the
+                    # value of parameter list in that index
+                    NAME="${!OPTIND}"
+                    # whe have to jump the parameter taken, it is not a option
+                    let OPTIND++
+                    ;;
+
             esac
             ;;
         \?)
