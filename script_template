@@ -9,10 +9,12 @@ Explaing what the program does
 Syntax: $SCRIPT_NAME [-h] <arg1> <arg2>
 Options:
     -h     Print this help and exit.
-    -n
+    -v     Make more verbose the messages
+    -n     Used to make a long option example
 
 Long option:
     --help     Print this help and exit.
+    --verbose  Make more verbose the messages
     --name     Example of long option that accepts a value
 HMESSAGE
 }
@@ -22,13 +24,16 @@ function exit_w_error {
     exit 1
 } >&2 # redirect to STDERR
 
+DEBUG=':' # no-op, do nothing command
 # Get the options
 # -: is used to enable long arguments
-while getopts "h-:" option; do
+while getopts "hvn:-:" option; do
     case $option in
         h )
             help
             exit 0;;
+        v )
+            DEBUG='echo';;
         n )
             NAME=$OPTARG;;
         - ) # Long arguments section
@@ -36,6 +41,8 @@ while getopts "h-:" option; do
                 help)
                     help
                     exit 0;;
+                verbose)
+                    DEBUG='echo';;
                 name=*) # case where the user usese the = to separate the value
                     # through parameter expanspansion string manipulation
                     # we remove all the character previous, and including, the =
@@ -57,6 +64,8 @@ while getopts "h-:" option; do
     esac
 done
 shift $((OPTIND -1)) # remove all options from $#
+
+$DEBUG "this is a debug print, only if -v was passed I will be printed"
 
 arg1="$1"
 arg2="$2"
