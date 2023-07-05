@@ -17,7 +17,6 @@ function is_installed {
     [ -z "$1" ] && echo "Command name missing" && exit 1
     COMMAND=$1
     FOUND=false
-    # we can enhance the editor search by searching in each directory of $PATH
     PATH_SPACED=${PATH//:/ } # separate each path by space instead of :
     for individual_path in ${PATH_SPACED}; do
         # true if file exist and is executable

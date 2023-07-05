@@ -43,10 +43,31 @@ arg2="$2"
 [ -z "$arg1" ] && exit_w_error "Arg1 missing"
 [ -z "$arg2" ] && exit_w_error "Arg2 missing"
 
-# check if a command we want to use does not exist
-# at the moment we call the command with -V, that returns the version.
-# but we could do something more sophisticate and search in all the PATH if the
-# command exists. Like we did in .zshrc for 'nvim'
+# this is a multi line comment. The ':' command is a no-op, does nothing and
+# returns true.
+# Is used in conjunction with the here-document to do a multiline comment
+: << DOC
+To check if a commmand exists or note there are two methods:
+- exists a executable file with the command name in PATH
+- call the command with the -V flag, to get the version. If returns something
+that means that the comand exists, otherwise not.
 
+The first solution is the prefered one, becasue the second method can fail if
+the comand does not have the -V flag, but is more quicker to write.
+DOC
+
+# first method
+function is_installed {
+    [ -z "$1" ] && echo "Command name missing" && exit 1
+    COMMAND=$1
+    FOUND=false
+    PATH_SPACED=${PATH//:/ } # separate each path by space instead of :
+    for individual_path in ${PATH_SPACED}; do
+        # true if file exist and is executable
+        [ -x "$individual_path/$COMMAND" ] && FOUND=true && break
+    done
+}
+
+# second method
 # redirect STDOUT and STDERR to /dev/null, in order to avoid echoing something
 rg -V >&/dev/null || exit_w_error "rg command is not installed"
