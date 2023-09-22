@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# This is a draft
+# the script uses mpv as a music player
+
+
+MUSIC_FOLDER="$HOME/my-music"
+mpv --vo=null --video=no --no-video --term-osd-bar --no-resume-playback --shuffle "$MUSIC_FOLDER"
