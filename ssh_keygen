@@ -1,0 +1,45 @@
+#!/bin/bash -
+source utils # to user exit_w_error
+
+SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
+
+function help {
+    # here-document used instead of echoing all lines
+   cat <<-HMESSAGE
+Given that I don't always remember the `ssh-keygen` command and flags I wrote
+this command to remember it for me.
+
+Syntax: $SCRIPT_NAME [-h] email
+Options:
+    -h     Print this help and exit.
+
+Long option:
+    --help     Print this help and exit.
+HMESSAGE
+}
+
+
+# Get the options
+while getopts "h-:" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        - ) # Long arguments section
+            case $OPTARG in
+                help)
+                    help
+                    exit 0;;
+            esac
+            ;;
+        \?)
+            exit_w_error "Error: Invalid option";;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
+email="$1"
+[ -z "$email" ] && exit_w_error "Email is missing"
+
+
+ssh-keygen -t ed25519 -C "$email"
