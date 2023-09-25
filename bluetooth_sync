@@ -7,7 +7,7 @@ if [ $ALL_DRIVERS ]; then
     echo " available drivers:"
     echo "  $ALL_DRIVERS"
 else
-    exit_with_error "There are no drivers available"
+    exit_w_error "There are no drivers available"
 fi
 
 # Select the bluetooth

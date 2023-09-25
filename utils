@@ -9,10 +9,10 @@ function log_info {
 }
 function log_error {
     printf "${RED}$1${NC}\n"
-}
-function exit_with_error {
+} >&2 # redirect to STDERR
+function exit_w_error {
     log_error "$1" && exit 1
-}
+} >&2 # redirect to STDERR
 function is_installed {
     [ -z "$1" ] && echo "Command name missing" && exit 1
     COMMAND=$1
