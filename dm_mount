@@ -35,5 +35,5 @@ if [[ ! -d "mountpoint" ]]; then
 fi
 # pgrep -x dunst kills the notification deamon that we use, in order to send the new notification.
 # If you use another nofitication deamon you need to change this part
-sudo mount $chosen $mountpoint && pgrep -x dunst && notify-send "$chosen mounte to $mountpoint mountpoint."
+sudo mount $chosen $mountpoint && pgrep -x dunst && notify-send "dm_mount" "$chosen mounte to $mountpoint mountpoint."
 

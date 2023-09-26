@@ -13,4 +13,11 @@ if [ $? -eq 0 ]; then
 else
     message='Error downloading mp3'
 fi
-terminal-notifier -title 'mp3-download' -message "$message"
+
+title='mp3-download'
+if is_installed dunst; then
+    # pgrep -x dunst kills the notification deamon that we use, in order to send the new notification.
+    pgrep -x dunst && notify-send "$title" "$message"
+elif is_installed terminal-notifier; then
+    terminal-notifier -title "$title" -message "$message"
+fi
