@@ -11,13 +11,15 @@ occurences_count=$(git grep -E $search_text | wc -l)
 
 if (($occurences_count>0));
 then
-	in_files=$(git grep -E $search_text)
-	echo -e "${RED_FG}found $occurences_count occurences in the following files:\n$in_files"
-	echo "COMMIT ABORTED"
-	echo $NC
-	exit 1
+    in_files=$(git grep -E $search_text)
+    echo -e "${RED_FG}found $occurences_count occurences in the following files:\n$in_files"
+    echo "COMMIT ABORTED"
+    echo $NC
+    exit 1
 else
-	echo "${GREEN_FG}No occurences founded"
-	echo $NC
-	exit 0
+    echo "${GREEN_FG}No occurences founded"
+    echo $NC
 fi
+
+git diff --check
+exit 0
