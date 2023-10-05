@@ -21,5 +21,6 @@ else
     echo $NC
 fi
 
+# A quick method to ensure that all the merge markers are deleted
 git diff --check
 exit 0
