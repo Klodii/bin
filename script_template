@@ -6,11 +6,11 @@ function help {
    cat <<-HMESSAGE
 Explaing what the program does
 
-Syntax: $SCRIPT_NAME [-h] <arg1> <arg2>
+Syntax: $SCRIPT_NAME [-hv][-n value] <arg1> <arg2>
 Options:
     -h     Print this help and exit.
     -v     Make more verbose the messages
-    -n     Used to make a long option example
+    -n     Example of long option that accepts a value
 
 Long option:
     --help     Print this help and exit.
