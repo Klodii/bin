@@ -1,33 +1,59 @@
 #!/bin/bash
+source utils
+SCRIPT_NAME=${0##*/}
 
-# Volume Control
-# if you have troubble with setting the default sink (output) use `pulsemixer` to set it
+function help {
+   cat <<-HMESSAGE
+[V]olume [C]ontrol
+Use this command to raise/lower/mute/unmute your volume
 
-# $2 is the second parameter that is given, if it is not given assign to NUM the value 5
+Syntax: $SCRIPT_NAME [-hv] <arg1>
+Options:
+    -h     Print this help and exit.
+    -v     Make more verbose the messages
+HMESSAGE
+}
+DEBUG=':' # no-op, do nothing command
+
+
+# -: is used to enable long arguments
+while getopts "hv" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        v )
+            DEBUG='echo';;
+        \?)
+            exit_w_error "Error: Invalid option";;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
+COMAND=$1
 NUM="${2:-5}"
-
-# if using PulseAudio set to true, else if using alsa audio set to false
-PULSE=true
-
-if [ "$PULSE" = true ]; then
-    toggle() { pulsemixer --toggle-mute ;}
-    mute() { pulsemixer --mute ;}
-    up() { pulsemixer --change-volume +"$NUM" ;}
-    down() { pulsemixer --change-volume -"$NUM" ;}
+if is_installed pulsemixer; then
+    $DEBUG "Using pulseaudio"
+    function toggle { pulsemixer --toggle-mute ;}
+    function mute { pulsemixer --mute ;}
+    function up { pulsemixer --change-volume +"$NUM" ;}
+    function down { pulsemixer --change-volume -"$NUM" ;}
 else
-    toggle() { amixer sset Master toggle ;}
-    mute() { amixer sset Master mute ; }
-    up() { amixer sset Master "$NUM"%+ ; }
-    down() { amixer sset Master "$NUM"%- ;}
+    $DEBUG "Using amixer"
+    function toggle { amixer sset Master toggle ;}
+    function mute { amixer sset Master mute ; }
+    function up { amixer sset Master "$NUM"%+ ; }
+    function down { amixer sset Master "$NUM"%- ;}
 fi
 
-case "$1" in
+
+case "$COMAND" in
     toggle) toggle ;;
     mute) mute ;;
     up) up ;;
     down) down ;;
     *) notify-send "No command executed" -u critical -t 5000; exit 1 ;;
-esac #>/dev/null # this send all the output to /dev/null
+esac
 
 if [ $(pulsemixer --get-mute) = 1 ]; then
     volume="Mute"
@@ -36,7 +62,7 @@ else
 fi
 
 # notify-send "Volume $1 ($volume)"
-dunstify -a "volume_control" -u low -r 9090 -h int:value:"$volume" -i "volume-$1" "Volume: $volume" -t 2000
+dunstify -a "volume_control" -u low -r 9090 -h int:value:"$volume" -i "volume-$COMAND" "Volume: $volume" -t 2000
 
 # update the statusbar, it expect to have 'statubar' script in your PATH
 # update the signal of statusbar
