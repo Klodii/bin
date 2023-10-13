@@ -47,7 +47,7 @@ if is_installed pulsemixer; then
     function down { pulsemixer --change-volume -"$NUM" ;}
     function is_muted { pulsemixer --get-mute ;}
     function get_volume { pulsemixer --get-volume | awk '{print int($1 * 100/150)"%"}' ;}
-else
+elif is_installed amixer; then
     $DEBUG "Using amixer"
     function toggle { amixer sset Master toggle ;}
     function mute { amixer sset Master mute ; }
@@ -55,6 +55,8 @@ else
     function down { amixer sset Master "$NUM"%- ;}
     function is_muted { log_error "Function not jet implemented" ;}
     function get_volume { log_error "Function not jet implemented" ;}
+else
+    exit_w_error "The script needs at least pulsemixer or amixer to work"
 fi
 
 case "$COMAND" in
