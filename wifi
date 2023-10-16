@@ -1,0 +1,46 @@
+#!/bin/bash -
+source utils
+SCRIPT_NAME=${0##*/}
+
+function help {
+   cat <<-HMESSAGE
+Network manager
+
+Syntax: $SCRIPT_NAME [-hlsp]
+Options:
+    -h     Print this help and exit.
+    -l     List all available networks and exit
+    -s     Status of the network devices
+    -p     Show connected wife connection SSID and [p]assword
+
+HMESSAGE
+}
+
+while getopts "hlsp" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        l )
+            log_info "Scanning wifi connections..."
+            nmcli dev wifi rescan;
+            log_info "Wifi connections found:"
+            nmcli dev wifi list;;
+        s )
+            nmcli device status;;
+        p )
+            nmcli dev wifi show-password;;
+        \?)
+            exit_w_error "Error: Invalid option";;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
+
+: <<-COMMENT
+Option to implement, connection to a new wifi
+
+nmcli dev wifi con "Cafe Hotspot 1" password caffeine name "My cafe"
+
+creates a new connection named "My cafe" and then connects it to "Cafe Hotspot 1" SSID using password "caffeine". This is mainly useful when connecting to "Cafe Hotspot 1" for the first time. Next time, it is better to use nmcli con up id "My cafe" so that the existing connection profile can be used and no additional is created.
+COMMENT
