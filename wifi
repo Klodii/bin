@@ -6,30 +6,49 @@ function help {
    cat <<-HMESSAGE
 Network manager
 
-Syntax: $SCRIPT_NAME [-hlsp]
+Syntax: $SCRIPT_NAME [-hlspc]
 Options:
     -h     Print this help and exit.
     -l     List all available networks and exit
     -s     Status of the network devices
     -p     Show connected wife connection SSID and [p]assword
+    -c     Connect to a wifi
 
 HMESSAGE
 }
 
-while getopts "hlsp" option; do
+
+function connect {
+networks="$(nmcli --fields SSID,SIGNAL,BARS --terse dev wifi list)"
+log_info "Which network do you want to connect?"
+select net in $networks
+do
+    network_name_regex='(^.*):.*:.*$'
+    selected_network=$(echo "$net" | sed -E "s/$network_name_regex/\1/")
+    break
+done
+log_info "You selected: $selected_network"
+read -p "Enter the password: " password
+read -p "Give a name to this connection: " con_name
+
+log_info "Trying to connect..."
+nmcli dev wifi con "$selected_network" password "$password" name "$con_name"
+}
+
+while getopts "hlspc" option; do
     case $option in
         h )
             help
             exit 0;;
         l )
-            log_info "Scanning wifi connections..."
-            nmcli dev wifi rescan;
-            log_info "Wifi connections found:"
-            nmcli dev wifi list;;
+            nmcli dev wifi rescan
+            nmcli --pretty dev wifi list;;
         s )
             nmcli device status;;
         p )
             nmcli dev wifi show-password;;
+        c )
+            connect;;
         \?)
             exit_w_error "Error: Invalid option";;
     esac
@@ -37,10 +56,3 @@ done
 shift $((OPTIND -1)) # remove all options from $#
 
 
-: <<-COMMENT
-Option to implement, connection to a new wifi
-
-nmcli dev wifi con "Cafe Hotspot 1" password caffeine name "My cafe"
-
-creates a new connection named "My cafe" and then connects it to "Cafe Hotspot 1" SSID using password "caffeine". This is mainly useful when connecting to "Cafe Hotspot 1" for the first time. Next time, it is better to use nmcli con up id "My cafe" so that the existing connection profile can be used and no additional is created.
-COMMENT
