@@ -3,10 +3,18 @@ source utils
 
 # terminal-notifier is a macos notifier pacakge, if you are on linux you can use
 # notify-send
+MUSIC_DIR="$HOME/my-music"
 
-is_installed 'youtube-dl' || exit_w_error 'youtube-dl is not installed'
+YT_DW=""
+if is_installed 'youtube-dl'; then
+    YT_DW='youtube-dl'
+elif is_installed 'yt-dlp'; then
+    YT_DW='yt-dlp'
+else
+    exit_w_error "Can' download, you have to install youtube-dl or yt-dlp"
+fi
 
-youtube-dl -x --audio-format mp3 "$1"
+$YT_DW -x --audio-format mp3 --output "$MUSIC_DIR/%(title)s.%(ext)s" "$1"
 
 if [ $? -eq 0 ]; then
     message='Finished downloading'
