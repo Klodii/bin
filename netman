@@ -19,22 +19,22 @@ HMESSAGE
 
 
 function connect {
-networks="$(nmcli --fields SSID,SIGNAL,BARS --terse dev wifi list)"
-log_info "Which network do you want to connect?"
-select net in $networks
-do
-    network_name_regex='(^.*):.*:.*$'
-    selected_network=$(echo "$net" | sed -E "s/$network_name_regex/\1/")
-    break
-done
-log_info "You selected: $selected_network"
-read -p "Enter the password: " password
-read -p "Give a name to this connection: " con_name
+    networks="$(nmcli --fields SSID,SIGNAL,BARS --terse dev wifi list)"
+    log_info "Which network do you want to connect?"
+    select net in $networks
+    do
+        network_name_regex='(^.*):.*:.*$'
+        selected_network=$(echo "$net" | sed -E "s/$network_name_regex/\1/")
+        break
+    done
+    log_info "You selected: $selected_network"
+    read -p "Enter the password: " password
+    read -p "Give a name to this connection: " con_name
 
-log_info "Trying to connect..."
-nmcli dev wifi con "$selected_network" password "$password" name "$con_name"
+    log_info "Trying to connect..."
+    nmcli dev wifi con "$selected_network" password "$password" name "$con_name"
 }
-
+[ $# -eq 0 ] && (log_info "You have to pass a flag"; help; exit 0)
 while getopts "hlspc" option; do
     case $option in
         h )
@@ -50,7 +50,9 @@ while getopts "hlspc" option; do
         c )
             connect;;
         \?)
-            exit_w_error "Error: Invalid option";;
+            log_error  "Error: Invalid option"
+            help
+            exit 1;;
     esac
 done
 shift $((OPTIND -1)) # remove all options from $#
