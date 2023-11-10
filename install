@@ -1,7 +1,0 @@
-#!/bin/bash
-# Install, put in a folder the is in $PATH,all the executable files that are in this folder, excluding this script (`install`)
-
-INSTALLATION_FOLDER=/usr/local/bin/
-SCRIPTS=$(ls -lF | grep \* | grep -v -e install -e pre-commit | awk '{print($9)}' | sed 's/\*//')
-
-cp -v $SCRIPTS $INSTALLATION_FOLDER
