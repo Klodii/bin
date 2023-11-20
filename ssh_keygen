@@ -4,9 +4,8 @@ source utils # to user exit_w_error
 SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
 
 function help {
-    # here-document used instead of echoing all lines
    cat <<-HMESSAGE
-Given that I don't always remember the `ssh-keygen` command and flags I wrote
+Given that I don't always remember the 'ssh-keygen' command and flags I wrote
 this command to remember it for me.
 
 Syntax: $SCRIPT_NAME [-h] email
