@@ -23,4 +23,13 @@ function is_installed {
         [ -x "$individual_path/$COMMAND" ] && FOUND=true && break
     done
 }
-
+function check_hash {
+    # hash keeps the locations of recently executed programs and shows them whenever we want to see it.
+    # It provides a complete pathname of each command name.
+    #
+    # When called with a command_name, it is searched for in the path environment variable,
+    # and if found, is added to the list of remembered commands, and exits with
+    # code 0, if not found exit with code 1.
+    command_name=$1
+    hash $command_name
+}
