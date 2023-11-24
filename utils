@@ -23,7 +23,7 @@ function is_installed {
         [ -x "$individual_path/$COMMAND" ] && FOUND=true && break
     done
 }
-function check_hash {
+function is_installed_w_hash {
     # hash keeps the locations of recently executed programs and shows them whenever we want to see it.
     # It provides a complete pathname of each command name.
     #
