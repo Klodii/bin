@@ -23,6 +23,15 @@ function is_installed {
         [ -x "$individual_path/$COMMAND" ] && FOUND=true && break
     done
 }
+function is_installed_in_zsh {
+    PATH_SPACED=${PATH//:/ } # separate each path by space instead of :
+    # =~ tels zsh to force whitespace splitting and filename expansion
+    # it is not necessary with bash
+    for individual_path in ${=~PATH_SPACED}; do
+        # true if file exist and is executable
+        [ -x "$individual_path/$COMMAND" ] && FOUND=true && break
+    done
+}
 function is_installed_w_hash {
     # hash keeps the locations of recently executed programs and shows them whenever we want to see it.
     # It provides a complete pathname of each command name.
