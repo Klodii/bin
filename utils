@@ -40,5 +40,5 @@ function is_installed_w_hash {
     # and if found, is added to the list of remembered commands, and exits with
     # code 0, if not found exit with code 1.
     command_name=$1
-    hash $command_name
+    hash $command_name 2> /dev/null # redirect error messages
 }
