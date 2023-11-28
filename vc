@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -
 source utils
 SCRIPT_NAME=${0##*/}
 DEFAULT_NUM=5
@@ -39,24 +39,43 @@ shift $((OPTIND -1)) # remove all options from $#
 
 COMAND=$1
 NUM="${2:-$DEFAULT_NUM}"
-if is_installed pulsemixer; then
-    $DEBUG "Using pulseaudio"
-    function toggle { pulsemixer --toggle-mute ;}
-    function mute { pulsemixer --mute ;}
-    function up { pulsemixer --change-volume +"$NUM" ;}
-    function down { pulsemixer --change-volume -"$NUM" ;}
-    function is_muted { pulsemixer --get-mute ;}
-    function get_volume { pulsemixer --get-volume | awk '{print int($1 * 100/150)"%"}' ;}
-elif is_installed amixer; then
-    $DEBUG "Using amixer"
-    function toggle { amixer sset Master toggle ;}
-    function mute { amixer sset Master mute ; }
-    function up { amixer sset Master "$NUM"%+ ; }
-    function down { amixer sset Master "$NUM"%- ;}
-    function is_muted { log_error "Function not jet implemented" ;}
-    function get_volume { log_error "Function not jet implemented" ;}
+OPERATNG_SYSTEM=$(uname -s)
+if [ $OPERATNG_SYSTEM = 'Darwin' ]; then # macos
+        $DEBUG "Using osascript"
+
+        function get_volume { osascript -e 'output volume of (get volume settings)' ;}
+        function up { osascript -e "set volume output volume $(get_volume)+$NUM" ;}
+        function down { osascript -e "set volume output volume $(get_volume)-$NUM" ;}
+        function mute { osascript -e "set volume with output muted" ;}
+        function unmute { osascript -e "set volume without output muted" ;}
+        function is_muted { osascript -e "output muted of (get volume settings)" ;}
+        function toggle {
+            if $(is_muted); then
+                unmute;
+            else
+                mute;
+            fi
+        }
 else
-    exit_w_error "The script needs at least pulsemixer or amixer to work"
+    if is_installed pulsemixer; then
+        $DEBUG "Using pulseaudio"
+        function get_volume { pulsemixer --get-volume | awk '{print int($1 * 100/150)"%"}' ;}
+        function up { pulsemixer --change-volume +"$NUM" ;}
+        function down { pulsemixer --change-volume -"$NUM" ;}
+        function mute { pulsemixer --mute ;}
+        function is_muted { pulsemixer --get-mute ;}
+        function toggle { pulsemixer --toggle-mute ;}
+    elif is_installed amixer; then
+        $DEBUG "Using amixer"
+        function get_volume { log_error "Function not jet implemented" ;}
+        function up { amixer sset Master "$NUM"%+ ; }
+        function down { amixer sset Master "$NUM"%- ;}
+        function mute { amixer sset Master mute ; }
+        function is_muted { log_error "Function not jet implemented" ;}
+        function toggle { amixer sset Master toggle ;}
+    else
+        exit_w_error "The script needs at least pulsemixer or amixer to work"
+    fi
 fi
 
 case "$COMAND" in
@@ -73,7 +92,18 @@ else
     volume=$(get_volume)
 fi
 
-dunstify -a "volume_control" -u low -r 9090 -h int:value:"$volume" -i "volume-$COMAND" "Volume: $volume" -t 2000
+
+if is_installed dunst; then
+    dunstify -a "volume_control" -u low -r 9090 -h int:value:"$volume" -i "volume-$COMAND" "Volume: $volume" -t 2000
+elif is_installed terminal-notifier; then
+    title='volume control'
+    message="Volume: $volume"
+    # terminal-notifier is a macos notifier pacakge, if you are on linux you can use
+    # pgrep -x dunst kills the notification deamon that we use, in order to send the new notification.
+    pgrep -x terminal-notifier # does not work
+    terminal-notifier -title "$title" -message "$message"
+fi
+
 
 # update the statusbar, it expect to have 'statubar' script in your PATH
 # update the signal of statusbar
