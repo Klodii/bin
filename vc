@@ -98,13 +98,5 @@ if is_installed dunst; then
 elif is_installed terminal-notifier; then
     title='volume control'
     message="Volume: $volume"
-    # terminal-notifier is a macos notifier pacakge, if you are on linux you can use
-    # pgrep -x dunst kills the notification deamon that we use, in order to send the new notification.
-    pgrep -x terminal-notifier # does not work
-    terminal-notifier -title "$title" -message "$message"
+    terminal-notifier -title "$title" -message "$message" -group 'vc'
 fi
-
-
-# update the statusbar, it expect to have 'statubar' script in your PATH
-# update the signal of statusbar
-# pkill -RTMIN+10 statusbar
