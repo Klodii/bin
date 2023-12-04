@@ -8,9 +8,8 @@
 # It needs work to adapt to my needs
 source utils
 
+SCRIPT_NAME=${0##*/}
 function help {
-    local SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
-    # here-document used instead of echoing all lines
    cat <<-HMESSAGE
 Pomodoro timer, to help you focus!
 
@@ -47,7 +46,7 @@ if [ $OPERATNG_SYSTEM = 'Darwin' ]; then # MacOs
     timer ${WORK_TIME}m
     terminal-notifier -title 'Pomodoro'\
             -message 'Work Timer is up! Take a Break 😊'\
-            -appIcon '~/hammer.png'\
+            -appIcon "$XDG_DATA_HOME/$SCRIPT_NAME/notification-img.png"\
             -group 'pomodoro'\
             -sound Crystal
 
@@ -55,9 +54,9 @@ if [ $OPERATNG_SYSTEM = 'Darwin' ]; then # MacOs
     timer 5m
     terminal-notifier -title 'Pomodoro'\
             -message 'Break is over! Get back to work 😬'\
-            -appIcon '~/hammer.png'\
+            -appIcon "$XDG_DATA_HOME/$SCRIPT_NAME/notification-img.png"\
             -group 'pomodoro'\
-            -sound Crystal\
+            -sound Crystal
 else
     # Requires https://github.com/caarlos0/timer to be installed. spd-say should ship with your distro
 
