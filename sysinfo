@@ -17,7 +17,7 @@
 #  ░░░░░░░░░░
 #
 #█▓▒░ progress bar
-draw() {
+function draw {
   FULL=━
   EMPTY=┄
   out=
@@ -31,6 +31,17 @@ draw() {
   done
   printf "%b" "$out"
 }
+function distro {
+    local DISTRO=''
+    local OPERATNG_SYSTEM=$(uname -s)
+    if [ $OPERATNG_SYSTEM = 'Darwin' ]; then
+        # MacOs
+        DISTRO=$(sw_vers | grep Product | awk '{print $2}' | tr '\n' ' ')
+    else
+        DISTRO=$(grep PRETTY </etc/os-release | sed 's/PRETTY_NAME=//;s/"//g;s/GNU.Linux / /')
+    fi
+    printf "%b" "$DISTRO"
+}
 
 #█▓▒░ populate vals
 i=1
@@ -41,7 +52,7 @@ while [ $i -le 6 ];do
 done
 COLORBAR=${c}$(printf "\e[37m█\e[0m▒░")
 HOST=$(hostname)
-DISTRO=$(grep PRETTY </etc/os-release | sed 's/PRETTY_NAME=//;s/"//g;s/GNU.Linux / /') # TAKE THAT RMS ;P
+DISTRO=$(distro)
 KERNEL=$(uname -r)
 UPTIME=$(uptime -p | cut -d " " -f2-)
 [[ ${#UPTIME} -ge 22 ]] && UPTIME=$(echo "$UPTIME" | sed 's/ weeks/wks/;s/ hours/hrs/;s/ minutes/mins/')
@@ -64,7 +75,7 @@ printf "\n \e[0m   hello \e[36m%s\033[0m, i'm \e[34m%s\n" "$USER" "$HOST"
 printf "\e[0m\n  %s\e[0m\n\n" "$COLORBAR"
 
 #█▓▒░ environment
-printf " \e[1;33m distro \e[0m%s\n" "${DISTRO,,}"
+printf " \e[1;33m distro \e[0m%s\n" "$DISTRO"
 printf " \e[1;33m kernel \e[0m%s\n" "$KERNEL"
 printf " \e[1;33m uptime \e[0m%s\n" "$UPTIME"
 printf " \e[1;33m   pkgs \e[0m%s%*s\e[1;33mbins \e[0m%s\n" "$PKGS" 8 " " "$BINS"
