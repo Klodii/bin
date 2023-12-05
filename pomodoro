@@ -1,78 +1,74 @@
 #!/bin/bash -
-# Pomodoro cli
-# code take from
-# https://gist.github.com/bashbunni/3880e4194e3f800c4c494de286ebc1d7
-# and
-# https://gist.github.com/bashbunni/f6b04fc4703903a71ce9f70c58345106
-#
-# It needs work to adapt to my needs
+
 source utils
 
 SCRIPT_NAME=${0##*/}
+WORK_TIME=25
+BREAK_TIME=5
 function help {
    cat <<-HMESSAGE
 Pomodoro timer, to help you focus!
 
 Requires https://github.com/caarlos0/timer to be installed
 
-Syntax: $SCRIPT_NAME [-h][-t value]
+Syntax: $SCRIPT_NAME [-h][-w value][-b value]
 Options:
     -h     Print this help and exit.
-    -t     Time to work (time to rest is 5 min by default)
+    -w     Time to work (default $WORK_TIME)
+    -b     Time to break (default $BREAK_TIME)
 
 HMESSAGE
 }
 
-while getopts "ht:" option; do
+while getopts "hw:b:" option; do
     case $option in
         h )
             help
             exit 0;;
-        t )
+        w )
             WORK_TIME=$OPTARG;;
+        b )
+            BREAK_TIME=$OPTARG;;
         \?)
             echo "Error: Invalid option"
             exit 1;;
     esac
 done
-shift $((OPTIND -1)) # remove all options from $#
-
-[ -z $WORK_TIME ] && exit_w_error "Work time needs to be specified, use the -t flag"
-echo "working for $WORK_TIME minutes"
+shift $((OPTIND -1))
 
 OPERATNG_SYSTEM=$(uname -s)
 if [ $OPERATNG_SYSTEM = 'Darwin' ]; then # MacOs
-    log_info "start working..."
-    timer ${WORK_TIME}m
-    terminal-notifier -title 'Pomodoro'\
+    SAY_CMD="say"
+    function work_end_notification {
+        terminal-notifier -title 'Pomodoro'\
             -message 'Work Timer is up! Take a Break 😊'\
             -appIcon "$XDG_DATA_HOME/$SCRIPT_NAME/notification-img.png"\
             -group 'pomodoro'\
             -sound Crystal
+        }
 
-    log_info "start resting..."
-    timer 5m
-    terminal-notifier -title 'Pomodoro'\
+    function break_end_notification {
+        terminal-notifier -title 'Pomodoro'\
             -message 'Break is over! Get back to work 😬'\
             -appIcon "$XDG_DATA_HOME/$SCRIPT_NAME/notification-img.png"\
             -group 'pomodoro'\
             -sound Crystal
+        }
 else
-    # Requires https://github.com/caarlos0/timer to be installed. spd-say should ship with your distro
-
-    declare -A pomo_options
-    pomo_options["work"]="45"
-    pomo_options["break"]="10"
-
-    pomodoro () {
-      if [ -n "$1" -a -n "${pomo_options["$1"]}" ]; then
-      val=$1
-      echo $val | lolcat
-      timer ${pomo_options["$val"]}m
-      spd-say "'$val' session done"
-      fi
+    SAY_CMD="spd-say"
+    function work_end_notification {
+        exit_w_error "work_end_notification function for Linux missing"
     }
-
-    alias wo="pomodoro 'work'"
-    alias br="pomodoro 'break'"
+    function break_end_notification {
+        exit_w_error "break_end_notification function for Linux missing"
+    }
 fi
+
+log_info "work session starts..."
+timer ${WORK_TIME}m
+$SAY_CMD "'work' session done"
+work_end_notification
+log_info "break session start..."
+timer ${BREAK_TIME}m
+$SAY_CMD "'break' session done"
+break_end_notification
