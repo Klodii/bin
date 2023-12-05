@@ -64,10 +64,13 @@ else
     }
 fi
 
+$SAY_CMD "work session start"
 log_info "work session starts..."
 timer ${WORK_TIME}m
 $SAY_CMD "'work' session done"
 work_end_notification
+
+$SAY_CMD "break session start"
 log_info "break session start..."
 timer ${BREAK_TIME}m
 $SAY_CMD "'break' session done"
