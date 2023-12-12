@@ -36,33 +36,37 @@ while getopts "hw:b:" option; do
 done
 shift $((OPTIND -1))
 
+NOT_TITLE='Pomodoro'
+NOT_ID=42
+NOT_WORK='Work Timer is up! Take a Break 😊'
+NOT_BREAK='Break is over! Get back to work 😬'
 OPERATNG_SYSTEM=$(uname -s)
 if [ $OPERATNG_SYSTEM = 'Darwin' ]; then # MacOs
     SAY_CMD="say"
     function work_end_notification {
-        terminal-notifier -title 'Pomodoro'\
-            -message 'Work Timer is up! Take a Break 😊'\
-            -appIcon "$XDG_DATA_HOME/$SCRIPT_NAME/notification-img.png"\
-            -group 'pomodoro'\
+        terminal-notifier -title "$NOT_TITLE"\
+            -message "$NOT_WORK"\
+            -group $NOT_ID\
             -sound Crystal
         }
 
     function break_end_notification {
-        terminal-notifier -title 'Pomodoro'\
-            -message 'Break is over! Get back to work 😬'\
-            -appIcon "$XDG_DATA_HOME/$SCRIPT_NAME/notification-img.png"\
-            -group 'pomodoro'\
+        terminal-notifier -title "$NOT_TITLE"\
+            -message "$NOT_BREAK"\
+            -group $NOT_ID\
             -sound Crystal
         }
 else
     SAY_CMD="spd-say"
     function work_end_notification {
-        exit_w_error "work_end_notification function for Linux missing"
+        dunstify -a "$NOT_TITLE" -r $NOT_ID "$NOT_TITLE" "$NOT_WORK" -t 2000
     }
     function break_end_notification {
-        exit_w_error "break_end_notification function for Linux missing"
+        dunstify -a "$NOT_TITLE" -r $NOT_ID "$NOT_TITLE" "$NOT_BREAK" -t 2000
     }
 fi
+
+hash $SAY_CMD || exit_w_error "Command $SAY_CMD not found"
 
 $SAY_CMD "work session start"
 log_info "work session starts..."
