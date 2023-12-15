@@ -14,31 +14,16 @@ function exit_w_error {
     log_error "$1" && exit 1
 } >&2 # redirect to STDERR
 function is_installed {
-    [ -z "$1" ] && echo "Command name missing" && exit 1
-    COMMAND=$1
-    FOUND=false
-    PATH_SPACED=${PATH//:/ } # separate each path by space instead of :
-    for individual_path in ${PATH_SPACED}; do
-        # true if file exist and is executable
-        [ -x "$individual_path/$COMMAND" ] && FOUND=true && break
-    done
-}
-function is_installed_in_zsh {
-    PATH_SPACED=${PATH//:/ } # separate each path by space instead of :
-    # =~ tels zsh to force whitespace splitting and filename expansion
-    # it is not necessary with bash
-    for individual_path in ${=~PATH_SPACED}; do
-        # true if file exist and is executable
-        [ -x "$individual_path/$COMMAND" ] && FOUND=true && break
-    done
-}
-function is_installed_w_hash {
+    # The function has a pure scope of information rather than to use.
+    # Instead, use the `hash` command directly
+    #
     # hash keeps the locations of recently executed programs and shows them whenever we want to see it.
     # It provides a complete pathname of each command name.
     #
     # When called with a command_name, it is searched for in the path environment variable,
     # and if found, is added to the list of remembered commands, and exits with
     # code 0, if not found exit with code 1.
+
     command_name=$1
     hash $command_name 2> /dev/null # redirect error messages
 }
