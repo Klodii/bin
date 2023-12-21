@@ -2,5 +2,16 @@
 # Linux rename, rename all files, in the current directory, in linux formatting:
 # no spaces (`_` instead), all characters in lower case.
 
-rename 'y/A-Z /a-z\_/' *
+COMMAND=rename # default
+
+# ArchLinux and its derivatives ship rename from the util-linux package, whereas
+# Ubuntu and its derivatives ship the Perl version of rename as the default.
+# The Perl version supports renaming using regex, whereas the util-linux version does not.
+# The linux users must install/use perl-rename
+# for arch linux the normal renam
+hash perl-rename && COMMAND=perl-rename
+
+
+$COMMAND 'y/A-Z /a-z\_/' *
+
 
