@@ -21,6 +21,17 @@ else
     echo $NC
 fi
 
+
 # A quick method to ensure that all the merge markers are deleted
 git diff --check
+
+# Make sure that there is not 'wip' commit in the current branch commits
+# I think that it is possible to have only one wip commit at a time, and
+# is the last one, it can't be possible to create a more than one wip commit.
+# Only the current commit can be a wip
+DEFAULT_BRANCH = $(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+git log $DEFAULT_BRANCH..HEAD | grep -q -i wip && { echo 'COMMIT ABORTED, found a wip in the branch commits'; exit 1; }
+DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+git log $DEFAULT_BRANCH..HEAD | grep -q -i wip && { echo 'COMMIT ABORTED, found a wip in the branch commits'; exit 1; }
+
 exit 0
