@@ -28,10 +28,17 @@ git diff --check
 # Ensure that there is no 'wip' commit in the current branch commits
 # I think that only the latest commits can be a wip type, it can't be
 # possible to create normal commits if there is a wip commit behinde.
-CURRENT_BRANCH=$(git branch --show-current)
-DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
-LOGS_INTERVAL=""
-[ "$CURRENT_BRANCH" != "$DEFAULT_BRANCH" ] && LOGS_INTERVAL="$DEFAULT_BRANCH..HEAD"
-git log --oneline $LOGS_INTERVAL | grep -q -i wip && { echo 'COMMIT ABORTED, found a wip in the branch commits'; exit 1; }
+#
+# The validation must not be executed if we are rebasing, otherwise we will not
+# be able to reword commit after we create on wip
+REBASING=$(git branch | grep '\* (no branch')
+if [ -z $REBASING ]; then
+    # it is not a rebase
+    CURRENT_BRANCH=$(git branch --show-current)
+    DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+    LOGS_INTERVAL=""
+    [ "$CURRENT_BRANCH" != "$DEFAULT_BRANCH" ] && LOGS_INTERVAL="$DEFAULT_BRANCH..HEAD"
+    git log --oneline $LOGS_INTERVAL | grep -q -i wip && { echo 'COMMIT ABORTED, found a wip in the branch commits'; exit 1; }
+fi
 
 exit 0
