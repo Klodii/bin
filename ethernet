@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+source utils
+
+if [ current_os = 'macos' ]; then
+    # TODO to make similar to the linux version
+    WIFI_NAME="$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | awk -F': ' '/ SSID/{print $2}')"
+    [ "$WIFI_NAME" = "" ] && printf "%s" "$OFF_ICON" || printf "%s" "$ON_ICON $WIFI_NAME"
+else
+    # Ethernet
+    # e* indicates ethernet connection
+    # if you want to indicate if a wifi is connected just change it to w*
+    #     ,
+    # For some reason I can't use the varialbe ethernet_path="/sys/class/net/e*"
+    if [ -d /sys/class/net/e* ] && [ $(cat /sys/class/net/e*/operstate) = 'up' ]; then
+        echo "Ethernet"
+    else
+        # Wifi quality percentage and up/down if connected
+        #       
+        grep "^\s*w" /proc/net/wireless | awk '{ print "", int($3 * 100 / 70) "%" }'
+    fi
+fi
