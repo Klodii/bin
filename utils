@@ -44,3 +44,15 @@ function current_os {
 function log_info {
     printf "${YELLOW}$1${NC}\n"
 }
+
+function get_tmpdir {
+    # normalize TMPDIR cross Linux, macOS
+    case $(current_os) in
+        'macos')
+            echo $TMPDIR
+            ;;
+        'linux')
+            echo '/tmp'
+            ;;
+    esac
+}
