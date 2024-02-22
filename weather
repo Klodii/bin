@@ -1,18 +1,33 @@
 #!/usr/bin/env bash
+source utils
 
-# Modified version of the generated one from `curl wttr.in/:bash.function`
-#
-# Simple function to get weather data
-#
-# Usage:
-#   $ weather
-#   $ weather <city>
-# Check curl wttr.in/:help for more info
+function help {
+   cat <<-HMESSAGE
+Get the weater of your IP location, or the specified location
 
-weather() {
-    local location=""
-    hash CoreLocationCLI 2> /dev/null && location="${1:-$(CoreLocationCLI --json | jq -r '.locality' 2>/dev/null)}"
-	curl -fGsS --compressed "wttr.in/${location}"?"m&lang=en&${2:-0qm}"
+Syntax: $SCRIPT_NAME [-hs] [location]
+Options:
+    -h     Print this help and exit.
+    -s     Return the current weather in a single string format
+HMESSAGE
 }
 
-weather "$@"
+# show current weather
+FORMAT='-0qm'
+while getopts "hs" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        s )
+            FORMAT="format=%c+%t+%h+%w+%m";;
+        \?)
+            echo "Error: Invalid option"
+            exit 1;;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
+LOCATION="$1"
+is_installed CoreLocationCLI && LOCATION="${1:-$(CoreLocationCLI --json | jq -r '.locality' 2>/dev/null)}"
+curl -fGsS --compressed "wttr.in/${LOCATION}"?"m&lang=en&${FORMAT}"
