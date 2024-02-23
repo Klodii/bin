@@ -3,7 +3,7 @@ function usage {
   cat <<EOF
 battery usage:
   general:
-    -h, --help    print this message
+    -h            print this message
     -t            output tmux status bar format
     -z            output zsh prompt format
     -i            enable nerd fonts battery indicators
@@ -15,39 +15,33 @@ battery usage:
 EOF
 }
 
-if [[ $1 == '-h' || $1 == '--help' || $1 == '-?' ]]; then
+if [[ $1 == '-h' ]]; then
   usage
   exit 0
 fi
 
-function setDefaults {
-  pmset_on=0
-  output_tmux=0
-  output_zsh=0
-  show_graph=0
-  ascii=0
-  ascii_bar='=========='
-  good_color="1;32"
-  middle_color="1;33"
-  warn_color="0;31"
+function set_defaults {
+    charging=false
+    color_template="%s"
+    TMUX_COLOR_TEMPLATE="#[fg=%s]"
+    ZSH_COLOR_TEMPLATE="%%F{%s}"
+    pmset_on=0
+    output_tmux=0
+    output_zsh=0
+    good_color="1;32"
+    middle_color="1;33"
+    warn_color="0;31"
+    charge_icon='ϟ'
+    show_battery_icon=false
 }
 
-setDefaults
-charge_icon='ϟ'
-show_battery_icon=false
-
-CHARGING=false
-
-COLOR_TEMPLATE="%s"
-TMUX_COLOR_TEMPLATE="#[fg=%s]"
-ZSH_COLOR_TEMPLATE="%%F{%s}"
 
 # Determine battery charge state
 function battery_charge {
   case $(uname -s) in
   "Darwin")
     if ((pmset_on)) && command -v pmset &>/dev/null; then
-      [ "$(pmset -g batt | grep -o 'AC Power')" ] && CHARGING=true
+      [ "$(pmset -g batt | grep -o 'AC Power')" ] && charging=true
       BATT_PCT=$(pmset -g batt | grep -o '[0-9]*%' | tr -d %)
     else
       while read key value; do
@@ -59,7 +53,7 @@ function battery_charge {
           curcap=$value
           ;;
         "ExternalConnected")
-          [ $value == "Yes" ] && CHARGING=true
+          [ $value == "Yes" ] && charging=true
           ;;
         esac
         if [[ -n "$maxcap" && -n $curcap ]]; then
@@ -83,7 +77,7 @@ function battery_charge {
       ;;
     esac
 
-    [ $battery_state == 'Charging' ] && CHARGING=true
+    [ $battery_state == 'Charging' ] && charging=true
     now=$(cat $battery_current)
     full=$(cat $battery_full)
     BATT_PCT=$((100 * $now / $full))
@@ -95,21 +89,21 @@ function battery_charge {
 function apply_colors {
   # Green
   if [[ $BATT_PCT -ge 75 ]]; then
-    COLOR=$(printf "$COLOR_TEMPLATE" "$good_color")
+    COLOR=$(printf "$color_template" "$good_color")
 
   # Yellow
   elif [[ $BATT_PCT -ge 25 ]] && [[ $BATT_PCT -lt 75 ]]; then
-    COLOR=$(printf "$COLOR_TEMPLATE" "$middle_color")
+    COLOR=$(printf "$color_template" "$middle_color")
 
   # Red
   elif [[ $BATT_PCT -lt 25 ]]; then
-    COLOR=$(printf "$COLOR_TEMPLATE" "$warn_color")
+    COLOR=$(printf "$color_template" "$warn_color")
   fi
 }
 
 # Apply the correct icon to the battery status prompt
 function apply_battery_icon {
-  if $CHARGING; then
+  if $charging; then
     GRAPH=${charge_icon}
   else
     if [[ $BATT_PCT -ge 95 ]]; then
@@ -132,7 +126,7 @@ function print_status {
   if [ show_battery_icon ] ; then
     apply_battery_icon
   else
-    if $CHARGING; then
+    if $charging; then
       GRAPH=${charge_icon}
     fi
   fi
@@ -146,8 +140,9 @@ function print_status {
   fi
 }
 
+set_defaults
 # Read args
-while getopts ":g:m:w:tizp" opt; do
+while getopts "g:m:w:tizp" opt; do
   case $opt in
   g)
     good_color=$OPTARG
@@ -162,14 +157,14 @@ while getopts ":g:m:w:tizp" opt; do
     show_battery_icon=true
     ;;
   t)
-    COLOR_TEMPLATE="$TMUX_COLOR_TEMPLATE"
+    color_template="$TMUX_COLOR_TEMPLATE"
     output_tmux=1
-    good_color="colour237"
-    middle_color="colour243"
+    good_color="balck"
+    middle_color="yellow"
     warn_color="red"
     ;;
   z)
-    COLOR_TEMPLATE="$ZSH_COLOR_TEMPLATE"
+    color_template="$ZSH_COLOR_TEMPLATE"
     output_zsh=1
     good_color="64"
     middle_color="136"
@@ -180,10 +175,6 @@ while getopts ":g:m:w:tizp" opt; do
     ;;
   \?)
     echo "Invalid option: -$OPTARG"
-    exit 1
-    ;;
-  :)
-    echo "Option -$OPTARG requires an argument"
     exit 1
     ;;
   esac
