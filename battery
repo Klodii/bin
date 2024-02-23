@@ -106,18 +106,15 @@ function apply_battery_icon {
   if $charging; then
     GRAPH=${charge_icon}
   else
-    if [[ $BATT_PCT -ge 95 ]]; then
-      GRAPH=" "
-
-    elif [[ $BATT_PCT -ge 75 ]] && [[ $BATT_PCT -lt 95 ]]; then
-      GRAPH=" "
-
-    elif [[ $BATT_PCT -ge 25 ]] && [[ $BATT_PCT -lt 75 ]]; then
-      GRAPH=" "
-
-    elif [[ $BATT_PCT -lt 25 ]]; then
-      GRAPH=" "
-    fi
+    case $BATT_PCT in
+        100) GRAPH="█" ;;
+        9[0-9]) GRAPH="▇" ;;
+        8[0-9]|7[0-9]) GRAPH="▆" ;;
+        6[0-9]|5[0-9]) GRAPH="▅" ;;
+        4[0-9]|3[0-9]) GRAPH="▃" ;;
+        2[0-9]|1[0-9]) GRAPH="▂" ;;
+        [0-9]) GRAPH="▁" ;;
+    esac
   fi
 }
 
