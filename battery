@@ -1,15 +1,12 @@
 #!/bin/bash
-usage() {
+function usage {
   cat <<EOF
 battery usage:
   general:
     -h, --help    print this message
     -t            output tmux status bar format
     -z            output zsh prompt format
-    -c            replace the battery charging icon
     -i            enable nerd fonts battery indicators
-    -G            show the graph
-    -a            output ascii instead of spark
     -p            use pmset (more accurate)
   colors:                                                 tmux     zsh
     -g <color>    good battery level      default: 1;32 | green  | 64
@@ -23,14 +20,11 @@ if [[ $1 == '-h' || $1 == '--help' || $1 == '-?' ]]; then
   exit 0
 fi
 
-# For default behavior
-setDefaults() {
+function setDefaults {
   pmset_on=0
   output_tmux=0
   output_zsh=0
   show_graph=0
-  show_battery_icon=0
-  charge_icon='ϟ'
   ascii=0
   ascii_bar='=========='
   good_color="1;32"
@@ -39,6 +33,8 @@ setDefaults() {
 }
 
 setDefaults
+charge_icon='ϟ'
+show_battery_icon=false
 
 CHARGING=false
 
@@ -47,7 +43,7 @@ TMUX_COLOR_TEMPLATE="#[fg=%s]"
 ZSH_COLOR_TEMPLATE="%%F{%s}"
 
 # Determine battery charge state
-battery_charge() {
+function battery_charge {
   case $(uname -s) in
   "Darwin")
     if ((pmset_on)) && command -v pmset &>/dev/null; then
@@ -96,7 +92,7 @@ battery_charge() {
 }
 
 # Apply the correct color to the battery status prompt
-apply_colors() {
+function apply_colors {
   # Green
   if [[ $BATT_PCT -ge 75 ]]; then
     COLOR=$(printf "$COLOR_TEMPLATE" "$good_color")
@@ -112,23 +108,19 @@ apply_colors() {
 }
 
 # Apply the correct icon to the battery status prompt
-apply_battery_icon() {
+function apply_battery_icon {
   if $CHARGING; then
     GRAPH=${charge_icon}
   else
-    # Full
     if [[ $BATT_PCT -ge 95 ]]; then
       GRAPH=" "
 
-    # NEARL-FULL
     elif [[ $BATT_PCT -ge 75 ]] && [[ $BATT_PCT -lt 95 ]]; then
       GRAPH=" "
 
-    # HALF-FULL
     elif [[ $BATT_PCT -ge 25 ]] && [[ $BATT_PCT -lt 75 ]]; then
       GRAPH=" "
 
-    # NEARLY EMPTY
     elif [[ $BATT_PCT -lt 25 ]]; then
       GRAPH=" "
     fi
@@ -136,31 +128,12 @@ apply_battery_icon() {
 }
 
 # Print the battery status
-print_status() {
-  if ((show_battery_icon)); then
+function print_status {
+  if [ show_battery_icon ] ; then
     apply_battery_icon
   else
     if $CHARGING; then
       GRAPH=${charge_icon}
-    else
-      if ((show_graph)); then
-        if command -v spark &>/dev/null; then
-          sparks=$(spark 0 ${BATT_PCT} 100)
-          GRAPH=${sparks:1:1}
-        else
-          ascii=1
-        fi
-      fi
-
-      if ((ascii)); then
-        barlength=${#ascii_bar}
-
-        # Battery percentage rounded to the lenght of ascii_bar
-        rounded_n=$(($barlength * $BATT_PCT / 100 + 1))
-
-        # Creates the bar
-        GRAPH=$(printf "[%-${barlength}s]" "${ascii_bar:0:rounded_n}")
-      fi
     fi
   fi
 
@@ -174,7 +147,7 @@ print_status() {
 }
 
 # Read args
-while getopts ":g:m:w:c:tizGab:p" opt; do
+while getopts ":g:m:w:tizp" opt; do
   case $opt in
   g)
     good_color=$OPTARG
@@ -183,14 +156,10 @@ while getopts ":g:m:w:c:tizGab:p" opt; do
     middle_color=$OPTARG
     ;;
   w)
-    echo "$OPTARG"
     warn_color=$OPTARG
     ;;
-  c)
-    charge_icon=$OPTARG
-    ;;
   i)
-    show_battery_icon=1
+    show_battery_icon=true
     ;;
   t)
     COLOR_TEMPLATE="$TMUX_COLOR_TEMPLATE"
@@ -205,12 +174,6 @@ while getopts ":g:m:w:c:tizGab:p" opt; do
     good_color="64"
     middle_color="136"
     warn_color="160"
-    ;;
-  G)
-    show_graph=1
-    ;;
-  a)
-    ascii=1
     ;;
   p)
     pmset_on=1
