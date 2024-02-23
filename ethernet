@@ -2,7 +2,12 @@
 source utils
 
 if [ $(current_os) = 'macos' ]; then
-    # The signal strength for a connection is the value for agrCtlRSSI. "RSSI" stands for received signal strength indication. The higher the number, the stronger the wireless signal. For Apple OS X systems, the value will range from a high of 0 down to minus 100 (-100). The closer the number is to zero, the stronger the signal while the closer the number is to negative 100, the weaker the signal strength.
+    # The signal strength for a connection is the value for agrCtlRSSI.
+    # "RSSI" stands for received signal strength indication. The higher the
+    # number, the stronger the wireless signal. For Apple OS X systems, the
+    # value will range from a high of 0 down to minus 100 (-100).
+    # The closer the number is to zero, the stronger the signal while the closer
+    # the number is to negative 100, the weaker the signal strength.
     RSSI=$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | awk -F': ' '/ agrCtlRSSI/{print $2}')
     WIFI_STRENGHT=$(($RSSI + 100))
     echo $WIFI_STRENGHT
