@@ -12,15 +12,25 @@ Options:
 HMESSAGE
 }
 
-# show current weather
-FORMAT='-0qm'
+# 0 only current weather
+# 1 current weather + today's forecast
+# 2 current weather + today's + tomorrow's forecast
+# 3 current weather + today's + tomorrow's + the day after tomorrow's forecast
+# m metric
+# q quiet
+OPTIONS='-3qm'
 while getopts "hs" option; do
     case $option in
         h )
             help
             exit 0;;
         s )
-            FORMAT="format=%c+%t+%h+%w+%m";;
+            # c    Weather condition,
+            # t    Temperature (Actual),
+            # h    Humidity,
+            # w    Wind,
+            # m    Moon phase 🌑🌒🌓🌔🌕🌖🌗🌘,
+            OPTIONS="format=%c+%t+%h+%w+%m";;
         \?)
             echo "Error: Invalid option"
             exit 1;;
@@ -30,4 +40,4 @@ shift $((OPTIND -1)) # remove all options from $#
 
 LOCATION="$1"
 is_installed CoreLocationCLI && LOCATION="${1:-$(CoreLocationCLI --json | jq -r '.locality' 2>/dev/null)}"
-curl -fGsS --compressed "wttr.in/${LOCATION}"?"m&lang=en&${FORMAT}"
+curl -fGsS --compressed "wttr.in/${LOCATION}"?"m&lang=en&${OPTIONS}"
