@@ -41,6 +41,11 @@ setDefaults() {
 setDefaults
 
 CHARGING=false
+
+COLOR_TEMPLATE="%s"
+TMUX_COLOR_TEMPLATE="#[fg=%s]"
+ZSH_COLOR_TEMPLATE="%%F{%s}"
+
 # Determine battery charge state
 battery_charge() {
   case $(uname -s) in
@@ -94,33 +99,15 @@ battery_charge() {
 apply_colors() {
   # Green
   if [[ $BATT_PCT -ge 75 ]]; then
-    if ((output_tmux)); then
-      COLOR="#[fg=$good_color]"
-    elif ((output_zsh)); then
-      COLOR="%F{$good_color}"
-    else
-      COLOR=$good_color
-    fi
+    COLOR=$(printf "$COLOR_TEMPLATE" "$good_color")
 
   # Yellow
   elif [[ $BATT_PCT -ge 25 ]] && [[ $BATT_PCT -lt 75 ]]; then
-    if ((output_tmux)); then
-      COLOR="#[fg=$middle_color]"
-    elif ((output_zsh)); then
-      COLOR="%F{$middle_color}"
-    else
-      COLOR=$middle_color
-    fi
+    COLOR=$(printf "$COLOR_TEMPLATE" "$middle_color")
 
   # Red
   elif [[ $BATT_PCT -lt 25 ]]; then
-    if ((output_tmux)); then
-      COLOR="#[fg=$warn_color]"
-    elif ((output_zsh)); then
-      COLOR="%F{$warn_color}"
-    else
-      COLOR=$warn_color
-    fi
+    COLOR=$(printf "$COLOR_TEMPLATE" "$warn_color")
   fi
 }
 
@@ -206,12 +193,14 @@ while getopts ":g:m:w:c:tizGab:p" opt; do
     show_battery_icon=1
     ;;
   t)
+    COLOR_TEMPLATE="$TMUX_COLOR_TEMPLATE"
     output_tmux=1
     good_color="colour237"
     middle_color="colour243"
     warn_color="red"
     ;;
   z)
+    COLOR_TEMPLATE="$ZSH_COLOR_TEMPLATE"
     output_zsh=1
     good_color="64"
     middle_color="136"
