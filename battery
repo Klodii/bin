@@ -115,8 +115,8 @@ function apply_battery_icon {
         8[0-9]|7[0-9]) GRAPH="▆" ;;
         6[0-9]|5[0-9]) GRAPH="▅" ;;
         4[0-9]|3[0-9]) GRAPH="▃" ;;
-        2[0-9]|1[0-9]) GRAPH="▂" ;;
-        [0-9]) GRAPH="▁" ;;
+        2[0-9]) GRAPH="▂" ;;
+        1[0-9]|[0-9]) GRAPH="▁" ;;
     esac
   fi
 }
