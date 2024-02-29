@@ -10,3 +10,8 @@ dunst &
 
 If you want to customize the notifications window you can add `dunstrc` file in `~/.config/dunst/` folder.
 
+# Note
+
+`dragon` is a binary that is installed automatically by https://github.com/mwh/dragon,
+it is a drag-and-drop source/sink for X or Wayland.
+
