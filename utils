@@ -49,6 +49,9 @@ function get_tmpdir {
     # normalize TMPDIR cross Linux, macOS
     case $(current_os) in
         'macos')
+            # $TMPDIR returns a user tmp directory
+            # /tmp or /private/tmp is a tmp directory accessable by all users
+            # we choose to return the user tmp directory
             echo $TMPDIR
             ;;
         'linux')
