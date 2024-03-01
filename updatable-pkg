@@ -1,0 +1,52 @@
+#!/bin/bash -
+source utils
+
+SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
+function help {
+  cat <<EOF
+Get the number of packages that can be updated:
+
+Syntax: $SCRIPT_NAME [-h]
+Options:
+    -h            print this message
+    -i            Add icons to the output
+EOF
+}
+
+ICON=""
+while getopts "hi" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        i )
+            #   
+            ICON=" "
+            ;;
+        \?)
+            exit_w_error "Error: Invalid option";;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
+case $(uname -s) in
+    "Darwin")
+      echo "To implement"
+      exit 1
+    ;;
+    "Linux")
+        case $(cat /etc/*-release) in
+            *"arch"*)
+                n_packages=$(checkupdates 2>/dev/null | wc -l)
+                ;;
+            *"Ubuntu"*)
+                n_packages=$(apt list --upgradable 2>/dev/null | grep upgradable | wc -l)
+                ;;
+            *)
+                echo "To implement"
+                exit 1
+                ;;
+        esac
+esac
+
+echo "$ICON$n_packages"
