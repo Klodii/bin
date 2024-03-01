@@ -6,12 +6,15 @@ DEFAULT_NUM=5
 function help {
    cat <<-HMESSAGE
 [V]olume [C]ontrol
-Use this command to raise/lower/mute/unmute your volume
+Use this command to raise/lower/mute/unmute your volume.
+If no command is passed, print the current volume
 
 Syntax: $SCRIPT_NAME [-hv] <command>
 Options:
     -h     Print this help and exit.
     -v     Make more verbose the messages
+    -i     Add icons to the output
+    -n     Send notification
 
 Commands:
     up <num>    Rase the volume of <num> value, if passed, otherwise $DEFAULT_NUM
@@ -21,16 +24,30 @@ Commands:
 HMESSAGE
 }
 DEBUG=':' # no-op, do nothing command
+ICON=':'
+NOTIFICATION=false
 
-
-# -: is used to enable long arguments
-while getopts "hv" option; do
+while getopts "hvin" option; do
     case $option in
         h )
             help
             exit 0;;
         v )
             DEBUG='echo';;
+        i )
+            function get_icon {
+                local volume=$(sed 's/%//' <<<"$1") # here document
+                case $volume in
+                    'Mute') v_icon="";;
+                    100|[6-9][0-9]) v_icon=" " ;;
+                    [1-5][0-9]) v_icon="" ;;
+                    *) v_icon="" ;;
+                esac
+                echo $v_icon
+            }
+            ICON=get_icon;;
+        n )
+            NOTIFICATION=true;;
         \?)
             exit_w_error "Error: Invalid option";;
     esac
@@ -83,7 +100,6 @@ case "$COMAND" in
     mute) mute ;;
     up) up ;;
     down) down ;;
-    *) notify-send "No command executed" -u critical -t 5000; exit 1 ;;
 esac
 
 if [ $(is_muted) = 1 ]; then
@@ -91,12 +107,14 @@ if [ $(is_muted) = 1 ]; then
 else
     volume=$(get_volume)
 fi
+echo $($ICON $volume) $volume
 
-
-if is_installed dunst; then
-    dunstify -a "volume_control" -u low -r 9090 -h int:value:"$volume" -i "volume-$COMAND" "Volume: $volume" -t 2000
-elif is_installed terminal-notifier; then
-    title='volume control'
-    message="Volume: $volume"
-    terminal-notifier -title "$title" -message "$message" -group 'vc'
+if $NOTIFICATION; then
+    if is_installed dunst; then
+        dunstify -a "volume_control" -u low -r 9090 -h int:value:"$volume" -i "volume-$COMAND" "Volume: $volume" -t 2000
+    elif is_installed terminal-notifier; then
+        title='volume control'
+        message="Volume: $volume"
+        terminal-notifier -title "$title" -message "$message" -group 'vc'
+    fi
 fi
