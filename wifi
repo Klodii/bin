@@ -1,6 +1,33 @@
 #!/usr/bin/env sh
 source utils
 
+SCRIPT_NAME=${0##*/}
+function help {
+  cat <<EOF
+Get the wifi strength
+
+Syntax: $SCRIPT_NAME [-h]
+Options:
+    -h            print this message
+    -i            Add icons to the output
+EOF
+}
+
+ICON=""
+while getopts "hi" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        i )
+            ICON=" "
+            ;;
+        \?)
+            exit_w_error "Error: Invalid option";;
+    esac
+done
+shift $((OPTIND -1))
+
 if [ $(current_os) = 'macos' ]; then
     # The signal strength for a connection is the value for agrCtlRSSI.
     # "RSSI" stands for received signal strength indication. The higher the
@@ -10,18 +37,18 @@ if [ $(current_os) = 'macos' ]; then
     # the number is to negative 100, the weaker the signal strength.
     RSSI=$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | awk -F': ' '/ agrCtlRSSI/{print $2}')
     WIFI_STRENGHT=$(($RSSI + 100))
-    echo $WIFI_STRENGHT
 else
     # Ethernet
     # e* indicates ethernet connection
     # if you want to indicate if a wifi is connected just change it to w*
-    #     ,
     # For some reason I can't use the varialbe ethernet_path="/sys/class/net/e*"
     if [ -d /sys/class/net/e* ] && [ $(cat /sys/class/net/e*/operstate) = 'up' ]; then
         echo "Ethernet"
     else
         # Wifi quality percentage and up/down if connected
-        #       
-        grep "^\s*w" /proc/net/wireless | awk '{ print "", int($3 * 100 / 70) "%" }'
+        WIFI_STRENGHT=$(grep "^\s*w" /proc/net/wireless | awk '{ int($3 * 100 / 70) "%" }')
     fi
 fi
+
+echo $ICON $WIFI_STRENGHT
+
