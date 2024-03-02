@@ -59,3 +59,9 @@ function get_tmpdir {
             ;;
     esac
 }
+
+function is_local {
+    # return true if in local machine
+    domain=$(hostname -d)
+    [ $domain = 'local' ]
+}
