@@ -21,7 +21,7 @@ while getopts "hi" option; do
             exit 0;;
         i )
             #   
-            ICON=" "
+            ICON="󰏔 "
             ;;
         \?)
             exit_w_error "Error: Invalid option";;
@@ -48,4 +48,4 @@ case $(uname -s) in
         esac
 esac
 
-echo "$ICON$n_packages"
+echo $ICON $n_packages
