@@ -36,14 +36,20 @@ if [ $(current_os) = 'macos' ]; then
     # The closer the number is to zero, the stronger the signal while the closer
     # the number is to negative 100, the weaker the signal strength.
     RSSI=$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | awk -F': ' '/ agrCtlRSSI/{print $2}')
-    WIFI_STRENGHT=$(($RSSI + 100))
+    if [ -z $RSSI ]; then
+        # no internet connection, empty string
+        ICON=""
+        WIFI_STRENGHT=$RSSI
+    else
+        WIFI_STRENGHT=$(($RSSI + 100))
+    fi
 else
     # Ethernet
     # e* indicates ethernet connection
     # if you want to indicate if a wifi is connected just change it to w*
     # For some reason I can't use the varialbe ethernet_path="/sys/class/net/e*"
     if [ -d /sys/class/net/e* ] && [ $(cat /sys/class/net/e*/operstate) = 'up' ]; then
-        echo "Ethernet"
+        WIFI_STRENGHT= "Ethernet"
     else
         # Wifi quality percentage and up/down if connected
         WIFI_STRENGHT=$(grep "^\s*w" /proc/net/wireless | awk '{ int($3 * 100 / 70) "%" }')
