@@ -38,10 +38,10 @@ while getopts "hvin" option; do
             function get_icon {
                 local volume=$(sed 's/%//' <<<"$1") # here document
                 case $volume in
-                    'Mute') v_icon="";;
-                    100|[6-9][0-9]) v_icon=" " ;;
-                    [1-5][0-9]) v_icon="" ;;
-                    *) v_icon="" ;;
+                    'Mute') v_icon="󰝟 ";;
+                    100|[6-9][0-9]) v_icon="󰕾 " ;;
+                    [1-5][0-9]) v_icon="󰖀 " ;;
+                    *) v_icon="󰕿 " ;;
                 esac
                 echo $v_icon
             }
@@ -102,11 +102,11 @@ case "$COMAND" in
     down) down ;;
 esac
 
-if [ $(is_muted) = 1 ]; then
-    volume="Mute"
-else
-    volume=$(get_volume)
-fi
+case $(is_muted) in
+    true|1) volume="Mute";;
+    *) volume=$(get_volume);;
+esac
+
 echo $($ICON $volume) $volume
 
 if $NOTIFICATION; then
