@@ -52,7 +52,7 @@ else
         WIFI_STRENGHT= "Ethernet"
     else
         # Wifi quality percentage and up/down if connected
-        WIFI_STRENGHT=$(grep "^\s*w" /proc/net/wireless | awk '{ int($3 * 100 / 70) "%" }')
+        WIFI_STRENGHT=$(grep "^\s*w" /proc/net/wireless | awk '{ print int($3 * 100 / 70) "%" }')
     fi
 fi
 
