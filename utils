@@ -60,8 +60,15 @@ function get_tmpdir {
     esac
 }
 
-function is_local {
-    # return true if in local machine
-    domain=$(hostname -d)
-    [ $domain = 'local' ]
+function in_ssh {
+    # return true if you are in ssh
+    # return false if you are in your local machine
+    if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+        true
+    else
+        case $(ps -o comm= -p "$PPID") in
+            sshd|*/sshd) true;;
+            *) false;;
+        esac
+    fi
 }
