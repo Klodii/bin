@@ -1,0 +1,11 @@
+#!/bin/sh
+
+CONTAINER='<container-name>'
+docker ps | grep -q $CONTAINER
+ALREADY_UP=$?
+
+[ $ALREADY_UP == 0 ] || docker compose up -d $CONTAINER
+
+docker compose exec -T $CONTAINER pytest
+
+[ $ALREADY_UP == 0 ] || docker compose down $CONTAINER
