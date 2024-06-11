@@ -2,8 +2,7 @@
 
 search="$1"
 # there maight be more than one path
-in_path="$2"
+in_path="${2-.}"
 
-# TODO: command does not work if $in_path is not passed
 rg --json -C 4 "$search" "$in_path" | delta
 
