@@ -25,7 +25,7 @@ shift $((OPTIND -1)) # remove all options from $#
 
 case $(uname -s) in
     "Darwin")
-      brew update
+      brew upgrade
     ;;
     "Linux")
         case $(cat /etc/*-release) in
