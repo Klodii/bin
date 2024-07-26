@@ -1,0 +1,12 @@
+#!/bin/bash -
+
+ALL_DATA=$(top -l 1 | head)
+GROUP_CPU_USAGE=$(echo "$ALL_DATA" | grep -E "CPU")
+USER_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% user.*/\1/')
+SYS_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% sys.*/\1/')
+#echo "$GROUP_CPU_USAGE"
+TOT_CPU=$(awk "BEGIN { print $USER_CPU + $SYS_CPU }")
+echo "CPU: $TOT_CPU%"
+
+# RAM=$(echo "$ALL_DATA" | grep -E "Phys")
+# echo $RAM
