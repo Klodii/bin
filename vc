@@ -84,11 +84,11 @@ else
         function toggle { pulsemixer --toggle-mute ;}
     elif is_installed amixer; then
         $DEBUG "Using amixer"
-        function get_volume { log_error "Function not jet implemented" ;}
+        function get_volume { amixer sget Master | grep % | head -1 | sed -E 's/.*\[([0-9]*)%\].*/\1/' ;}
         function up { amixer sset Master "$NUM"%+ ; }
         function down { amixer sset Master "$NUM"%- ;}
         function mute { amixer sset Master mute ; }
-        function is_muted { log_error "Function not jet implemented" ;}
+        function is_muted { amixer sget Master | grep -q "\[off\]" && echo true ;}
         function toggle { amixer sset Master toggle ;}
     else
         exit_w_error "The script needs at least pulsemixer or amixer to work"
