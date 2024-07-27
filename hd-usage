@@ -1,12 +1,23 @@
 #!/bin/bash -
+source utils
 
-ALL_DATA=$(top -l 1 | head)
-GROUP_CPU_USAGE=$(echo "$ALL_DATA" | grep -E "CPU")
-USER_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% user.*/\1/')
-SYS_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% sys.*/\1/')
-#echo "$GROUP_CPU_USAGE"
-TOT_CPU=$(awk "BEGIN { print $USER_CPU + $SYS_CPU }")
+# This is to make sure that all the mubers will have a dot and not a comma as a
+# float separator
+LC_NUMERIC=en_US
+
+if [ $(current_os) == 'linux' ]; then
+    GROUP_CPU_USAGE=$(top -n1 | grep "%Cpu(s)")
+    IDLE_CPU=$(echo "$GROUP_CPU_USAGE" | sed -E 's/.* ([0-9]*[.][0-9]*).*id.*/\1/')
+    TOT_CPU=$(awk "BEGIN { print 100 - $IDLE_CPU }")
+else
+    ALL_DATA=$(top -l 1 | head)
+    GROUP_CPU_USAGE=$(echo "$ALL_DATA" | grep "CPU")
+    USER_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% user.*/\1/')
+    SYS_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% sys.*/\1/')
+    #echo "$GROUP_CPU_USAGE"
+    TOT_CPU=$(awk "BEGIN { print $USER_CPU + $SYS_CPU }")
+fi
+
 echo "CPU: $TOT_CPU%"
-
 # RAM=$(echo "$ALL_DATA" | grep -E "Phys")
 # echo $RAM
