@@ -67,18 +67,9 @@ function battery_charge {
   "Linux")
     battery_path=/sys/class/power_supply/BAT0
     [ -d "$battery_path" ] || exit_w_error "There is no battery"
-    case $(cat /etc/*-release) in
-    *"Arch Linux"* | *"Ubuntu"*)
-      battery_state=$(cat $battery_path/energy_now)
-      battery_full=$battery_path/energy_full
-      battery_current=$battery_path/energy_now
-      ;;
-    *)
-      battery_state=$(cat $battery_path/status)
-      battery_full=$battery_path/charge_full
-      battery_current=$battery_path/charge_now
-      ;;
-    esac
+    battery_state=$(cat $battery_path/status)
+    battery_full=$battery_path/energy_full
+    battery_current=$battery_path/energy_now
 
     [ $battery_state == 'Charging' ] && charging=true
     now=$(cat $battery_current)
