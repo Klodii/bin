@@ -8,16 +8,21 @@ LC_NUMERIC=en_US
 if [ $(current_os) == 'linux' ]; then
     GROUP_CPU_USAGE=$(top -n1 | grep "%Cpu(s)")
     IDLE_CPU=$(echo "$GROUP_CPU_USAGE" | sed -E 's/.* ([0-9]*[.][0-9]*).*id.*/\1/')
-    TOT_CPU=$(awk "BEGIN { print 100 - $IDLE_CPU }")
+    CPU_PCT=$(awk "BEGIN { print 100 - $IDLE_CPU }")
+
+    GROUP_RAM_USAGE=$(free | grep 'Mem:')
+    TOTAL_RAM=$(echo $GROUP_RAM_USAGE | awk '{print $2}')
+    USED_RAM=$(echo $GROUP_RAM_USAGE | awk '{print $3}')
+    RAM_PCT=$((100 * $USED_RAM / $TOTAL_RAM))
 else
     ALL_DATA=$(top -l 1 | head)
     GROUP_CPU_USAGE=$(echo "$ALL_DATA" | grep "CPU")
     USER_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% user.*/\1/')
     SYS_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% sys.*/\1/')
     #echo "$GROUP_CPU_USAGE"
-    TOT_CPU=$(awk "BEGIN { print $USER_CPU + $SYS_CPU }")
+    CPU_PCT=$(awk "BEGIN { print $USER_CPU + $SYS_CPU }")
 fi
 
-echo "CPU: $TOT_CPU%"
+echo "CPU: $CPU_PCT% RAM: $RAM_PCT%"
 # RAM=$(echo "$ALL_DATA" | grep -E "Phys")
 # echo $RAM
