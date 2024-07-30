@@ -59,6 +59,7 @@ if [ $(current_os) == 'linux' ]; then
     USED_RAM=$(echo $GROUP_RAM_USAGE | awk '{print $3}')
     RAM_PCT=$((100 * $USED_RAM / $TOTAL_RAM))
 
+    # For AMD chips we have to check the Tdie value
     TEMPERATURE=$(sensors | grep Tdie |awk '{print $2}')
 else
     ALL_DATA=$(top -l 1 | head)
