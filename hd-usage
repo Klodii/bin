@@ -58,6 +58,8 @@ if [ $(current_os) == 'linux' ]; then
     TOTAL_RAM=$(echo $GROUP_RAM_USAGE | awk '{print $2}')
     USED_RAM=$(echo $GROUP_RAM_USAGE | awk '{print $3}')
     RAM_PCT=$((100 * $USED_RAM / $TOTAL_RAM))
+
+    TEMPERATURE=$(sensors | grep Tdie |awk '{print $2}')
 else
     ALL_DATA=$(top -l 1 | head)
     GROUP_CPU_USAGE=$(echo "$ALL_DATA" | grep "CPU")
@@ -67,6 +69,6 @@ else
     CPU_PCT=$(awk "BEGIN { print $USER_CPU + $SYS_CPU }")
 fi
 
-echo "CPU: $CPU_PCT% RAM: $RAM_PCT%"
+echo "🌡:$TEMPERATURE CPU: $CPU_PCT% RAM: $RAM_PCT%"
 # RAM=$(echo "$ALL_DATA" | grep -E "Phys")
 # echo $RAM
