@@ -1,9 +1,53 @@
 #!/bin/bash -
 source utils
 
+SCRIPT_NAME=${0##*/}
+
+function help {
+   cat <<-HMESSAGE
+Return the hardware (CPU and RAM) performances
+
+Syntax: $SCRIPT_NAME [-hl]
+Options:
+    -h     Print this help and exit.
+    -l     List the processes that are using the most hardware
+
+HMESSAGE
+}
+
+function exit_w_error {
+    echo "$1"
+    exit 1
+} >&2 # redirect to STDERR
+
+
+LIST=false
+while getopts "hl" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        l )
+            LIST=true;;
+        \?)
+            exit_w_error "Error: Invalid option";;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
 # This is to make sure that all the mubers will have a dot and not a comma as a
 # float separator
 LC_NUMERIC=en_US
+
+
+if [ $LIST == true ]; then
+    # if you dont' want the header to the list, add `h` to the flags
+    # used to truncate commands that have the name too long
+    MAX_CHARACTERS=15
+    ps axc -o cmd:$MAX_CHARACTERS,%cpu --sort=-%cpu | head
+    exit 0
+fi
+
 
 if [ $(current_os) == 'linux' ]; then
     GROUP_CPU_USAGE=$(top -n1 | grep "%Cpu(s)")
