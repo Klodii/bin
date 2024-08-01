@@ -68,8 +68,9 @@ else
     SYS_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% sys.*/\1/')
     #echo "$GROUP_CPU_USAGE"
     CPU_PCT=$(awk "BEGIN { print $USER_CPU + $SYS_CPU }")
+    TEMPERATURE=$(sudo powermetrics --samplers smc -i1 -n1 |grep -i "CPU die temperature" | awk '{print $4}')
 fi
 
-echo "🌡:$TEMPERATURE CPU: $CPU_PCT% RAM: $RAM_PCT%"
+echo "🌡 $TEMPERATURE CPU: $CPU_PCT% RAM: $RAM_PCT%"
 # RAM=$(echo "$ALL_DATA" | grep -E "Phys")
 # echo $RAM
