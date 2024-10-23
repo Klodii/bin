@@ -3,10 +3,13 @@ SCRIPT_NAME=${0##*/}
 
 function usage {
   cat <<EOF
-Remove the duplicated lines from a file:
+Remove the duplicated lines from a file without chainging the order of the lines:
 Syntax: $SCRIPT_NAME [-h] filename
 Options:
     -h            print this message
+    -k            key to use to identify if a line is a duplicated line (by default we use the entire line $0)
+                  If you want to check only the first and second values of the line write  `-k $1$2`
+                      >>>>Still in TODO<<<<
 EOF
 }
 
@@ -15,5 +18,5 @@ if [[ $1 == '-h' ]]; then
   exit 0
 fi
 
-# for more details https://unix.stackexchange.com/questions/159695/how-does-awk-a0-work
+# for more details https://opensource.com/article/19/10/remove-duplicate-lines-files-awk
 awk '!seen[$0]++' $1
