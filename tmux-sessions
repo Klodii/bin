@@ -1,0 +1,29 @@
+#!/bin/bash -
+
+SCRIPT_NAME=${0##*/}
+function help {
+  cat <<EOF
+List all the tmux sessions available and attach to the one selected.
+It is also possible to create a new session by selecting the "+New" choise
+
+Syntax: $SCRIPT_NAME [-h]
+Options:
+    -h            print this message
+EOF
+}
+while getopts "h" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        \?)
+            exit_w_error "Error: Invalid option";;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
+SESSIONS=$(tmux ls)
+CHOOSEN=$(echo $SESSIONS | fzf)
+SESSION_NAME=$(echo $CHOOSEN | sed -E 's/(\w*):.*/\1/')
+
+tmux attach-session -t $SESSION_NAME
