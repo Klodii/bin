@@ -4,33 +4,43 @@ SCRIPT_NAME=${0##*/}
 function help {
   cat <<EOF
 List all the tmux sessions available and attach to the one selected.
-It is also possible to create a new session by selecting the "+New" choise
+It is also possible to create a new session if none is found (-n).
 
 Syntax: $SCRIPT_NAME [-h]
 Options:
     -h            print this message
+    -n            if no session is found with that name, create it
 EOF
 }
-while getopts "h" option; do
+CREATE=false
+while getopts "hn" option; do
     case $option in
         h )
             help
             exit 0;;
+        n )
+            CREATE=true;;
         \?)
             exit_w_error "Error: Invalid option";;
     esac
 done
 shift $((OPTIND -1)) # remove all options from $#
 
+SESSION_FOUND=false
 SESSIONS=$(tmux ls)
-CHOOSEN=$(echo "$SESSIONS" | fzf)
+# --print-query print query as the first line
+CHOOSEN=$(echo "${SESSIONS}" | fzf --print-query --height "25%" --header "Choose the tmux session" --reverse --border)
+# if SESSION_FOUND then we have to remove the query from the $CHOOSEN variable
+[ $? -eq 0 ] && { SESSION_FOUND=true CHOOSEN=$(echo "$CHOOSEN" | sed '1d'); }
 SESSION_NAME=$(echo $CHOOSEN | sed -E 's/(\w*):.*/\1/')
 
-IM_IN_TMUX=$(echo $TMUX)
+[ -z $SESSION_NAME ] && exit 1
 
+$CREATE && [ $SESSION_FOUND = false ] && tmux new-session -d -s $SESSION_NAME
+
+IM_IN_TMUX=$(echo $TMUX)
 if [ -n "$IM_IN_TMUX" ]; then
     tmux switch -t $SESSION_NAME
 else
     tmux attach-session -t $SESSION_NAME
 fi
-
