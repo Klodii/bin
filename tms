@@ -23,7 +23,14 @@ done
 shift $((OPTIND -1)) # remove all options from $#
 
 SESSIONS=$(tmux ls)
-CHOOSEN=$(echo $SESSIONS | fzf)
+CHOOSEN=$(echo "$SESSIONS" | fzf)
 SESSION_NAME=$(echo $CHOOSEN | sed -E 's/(\w*):.*/\1/')
 
-tmux attach-session -t $SESSION_NAME
+IM_IN_TMUX=$(echo $TMUX)
+
+if [ -n "$IM_IN_TMUX" ]; then
+    tmux switch -t $SESSION_NAME
+else
+    tmux attach-session -t $SESSION_NAME
+fi
+
