@@ -1,42 +1,48 @@
 #!/bin/bash -
+source utils
 
 SCRIPT_NAME=${0##*/}
 function help {
   cat <<EOF
 List all the tmux sessions available and attach to the one selected.
+If no session is found, create and attach to it.
 It is also possible to create a new session if none is found (-n).
 
-Syntax: $SCRIPT_NAME [-h]
+Syntax: $SCRIPT_NAME [-h] [-n arg]
 Options:
     -h            print this message
-    -n            if no session is found with that name, create it
+    -n            create a new session and attach to it
 EOF
 }
-CREATE=false
-while getopts "hn" option; do
+SESSION_NAME=''
+while getopts "hn:" option; do
     case $option in
         h )
             help
             exit 0;;
         n )
-            CREATE=true;;
+            SESSION_NAME=$OPTARG;;
         \?)
             exit_w_error "Error: Invalid option";;
     esac
 done
 shift $((OPTIND -1)) # remove all options from $#
 
-SESSION_FOUND=false
-SESSIONS=$(tmux ls)
-# --print-query print query as the first line
-CHOOSEN=$(echo "${SESSIONS}" | fzf --print-query --height "25%" --header "Choose the tmux session" --reverse --border)
-# if SESSION_FOUND then we have to remove the query from the $CHOOSEN variable
-[ $? -eq 0 ] && { SESSION_FOUND=true CHOOSEN=$(echo "$CHOOSEN" | sed '1d'); }
-SESSION_NAME=$(echo $CHOOSEN | sed -E 's/(\w*):.*/\1/')
+if [ -z $SESSION_NAME ]; then
+    SESSION_FOUND=false
+    SESSIONS=$(tmux ls)
+    # --print-query print query as the first line
+    CHOOSEN=$(echo "${SESSIONS}" | fzf --print-query --height "25%" --header "Choose the tmux session" --reverse --border)
+    # if SESSION_FOUND then we have to remove the query from the $CHOOSEN variable
+    [ $? -eq 0 ] && { SESSION_FOUND=true CHOOSEN=$(echo "$CHOOSEN" | sed '1d'); }
+    SESSION_NAME=$(echo $CHOOSEN | sed -E 's/(\w*):.*/\1/')
 
-[ -z $SESSION_NAME ] && exit 1
+    [ -z $SESSION_NAME ] && exit 1
 
-$CREATE && [ $SESSION_FOUND = false ] && tmux new-session -d -s $SESSION_NAME
+    [ $SESSION_FOUND = false ] && tmux new-session -d -s $SESSION_NAME
+else
+    tmux new-session -d -s $SESSION_NAME
+fi
 
 IM_IN_TMUX=$(echo $TMUX)
 if [ -n "$IM_IN_TMUX" ]; then
