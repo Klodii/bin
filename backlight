@@ -1,0 +1,97 @@
+#!/bin/bash -
+source utils
+SCRIPT_NAME=${0##*/}
+DEFAULT_NUM=5
+
+function help {
+   cat <<-HMESSAGE
+Use this command to set/raise/lower the screen backlight.
+If no command is passed, print the current value
+
+Syntax: $SCRIPT_NAME [-hin] <command>
+Options:
+    -h     Print this help and exit.
+    -i     Add icons to the output
+    -n     Send notification
+
+Commands:
+    up <num>    Rase the backlight of <num>% value, if passed, otherwise $DEFAULT_NUM%
+    down <num>  Lower the backlight of <num>% value, if passed, otherwise $DEFAULT_NUM%
+    set <num>   Set the backlight of <num>% value
+HMESSAGE
+}
+ICON=''
+NOTIFICATION=false
+
+while getopts "hvin" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        i )
+            ICON="";;
+        n )
+            NOTIFICATION=true;;
+        \?)
+            exit_w_error "Error: Invalid option";;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
+COMAND=$1
+NUM="${2:-$DEFAULT_NUM}"
+OPERATNG_SYSTEM=$(uname -s)
+if [ $OPERATNG_SYSTEM = 'Darwin' ]; then # macos
+    exit_w_error "Missing functions for MacOs"
+else
+    if is_installed xbacklight; then
+        # sudo pacman -S xorg-xbacklight
+        #
+        # If you get the "No outputs have backlight property" error, it is
+        # because xrandr/xbacklight does not choose the right directory in
+        # /sys/class/backlight. You can specify the directory by setting the
+        # Backlight option of the device section in
+        # /etc/X11/xorg.conf.d/20-video.conf.
+        # For instance, if the name of the graphic_card
+        # (graphic_card=$(ls /sys/class/backlight/))
+        # is intel_backlight and using the Intel driver, the device section may
+        # be configured as follows
+        #
+        # ```
+        # Section "Device"
+        #     Identifier  "Intel Graphics"
+        #     Driver      "intel"
+        #     Option      "Backlight"  "intel_backlight"
+        # EndSection
+        # ```
+
+        function get_brightness { xbacklight | sed -E 's/(\d*)\..*/\1/' ;} # cast to int value
+        function set { xbacklight -set "$NUM";}
+        function up { xbacklight -inc "$NUM";}
+        function down { xbacklight -dec "$NUM";}
+    else
+        exit_w_error "The scripts works only with xorg-xbacklight for now"
+    fi
+fi
+
+case "$COMAND" in
+    set) set ;;
+    up) up ;;
+    down) down ;;
+esac
+
+brightness=$(get_brightness)
+
+echo $ICON $brightness
+
+if $NOTIFICATION; then
+    if is_installed dunst; then
+        dunstify -a "brightness" -u low -r 9090 -h int:value:"$brightness" -i "brightness-$COMAND" "brightness: $brightness" -t 2000
+    elif is_installed terminal-notifier; then
+        title='backlight'
+        message="brightness: $brightness"
+        terminal-notifier -title "$title" -message "$message" -group 'brightness'
+    fi
+fi
+
+
