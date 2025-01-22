@@ -72,6 +72,9 @@ else
         #     Option      "Backlight"  "intel_backlight"
         # EndSection
         # ```
+        #
+        graphic_card=$(ls /sys/class/backlight/)
+        [ -z $graphic_card ] && exit_w_error "No graphic_card, maybe you are in a PC and not a laptop"
 
         function get_brightness { xbacklight | sed -E 's/(\d*)\..*/\1/' ;} # cast to int value
         function set { xbacklight -set "$NUM";}
