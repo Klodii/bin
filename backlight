@@ -42,7 +42,15 @@ COMAND=$1
 NUM="${2:-$DEFAULT_NUM}"
 OPERATNG_SYSTEM=$(uname -s)
 if [ $OPERATNG_SYSTEM = 'Darwin' ]; then # macos
-    exit_w_error "Missing functions for MacOs"
+    if is_installed brightness; then
+        # brew install brightness
+        function get_brightness { brightness -l | awk '$3=="brightness" {print int($4 * 100)}' ;}
+        function set { exit_w_error "Function not defined yet";}
+        function up { exit_w_error "Function not defined yet";}
+        function down { exit_w_error "Function not defined yet";}
+    else
+        exit_w_error "The scripts works only with 'brightness' for now"
+    fi
 else
     if is_installed xbacklight; then
         # sudo pacman -S xorg-xbacklight
@@ -70,7 +78,7 @@ else
         function up { xbacklight -inc "$NUM";}
         function down { xbacklight -dec "$NUM";}
     else
-        exit_w_error "The scripts works only with xorg-xbacklight for now"
+        exit_w_error "The scripts works only with 'xorg-xbacklight' for now"
     fi
 fi
 
