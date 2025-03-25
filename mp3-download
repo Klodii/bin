@@ -14,6 +14,7 @@ else
     exit_w_error "Can' download, you have to install youtube-dl or yt-dlp"
 fi
 
+log_info "Downloading with $YT_DW"
 $YT_DW -x --audio-format mp3 --output "$MUSIC_DIR/%(title)s.%(ext)s" "$1"
 
 if [ $? -eq 0 ]; then
