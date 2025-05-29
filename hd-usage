@@ -78,10 +78,10 @@ else
     USED_RAM=$(echo "$GROUP_RAM_USAGE" | awk '{print $2}' | sed 's/M//')
     UNUSED_RAM=$(echo "$GROUP_RAM_USAGE" | awk '{print $8}' | sed 's/M//')
     TOTAL_RAM=$(($USED_RAM + $UNUSED_RAM))
-    echo $USED_RAM
-    echo $UNUSED_RAM
-    echo $TOTAL_RAM
     RAM_PCT=$((100 * $USED_RAM / $TOTAL_RAM))
 fi
 
-echo "🌡 $TEMPERATURE CPU: $CPU_PCT% RAM: $RAM_PCT%"
+[ -n "$TEMPERATURE" ] && TEMPERATURE="🌡 $TEMPERATURE"
+[ -n "$CPU_PCT" ] && CPU_PCT="CPU: $CPU_PCT%"
+[ -n "$RAM_PCT" ] && RAM_PCT="RAM: $RAM_PCT%"
+echo "$TEMPERATURE $CPU_PCT $RAM_PCT"
