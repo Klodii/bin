@@ -71,11 +71,17 @@ else
     GROUP_CPU_USAGE=$(echo "$ALL_DATA" | grep "CPU")
     USER_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% user.*/\1/')
     SYS_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% sys.*/\1/')
-    #echo "$GROUP_CPU_USAGE"
     CPU_PCT=$(awk "BEGIN { print $USER_CPU + $SYS_CPU }")
     TEMPERATURE=$(sudo powermetrics --samplers smc -i1 -n1 |grep -i "CPU die temperature" | awk '{print $4}')
+
+    GROUP_RAM_USAGE=$(echo "$ALL_DATA" | grep PhysMem)
+    USED_RAM=$(echo "$GROUP_RAM_USAGE" | awk '{print $2}' | sed 's/M//')
+    UNUSED_RAM=$(echo "$GROUP_RAM_USAGE" | awk '{print $8}' | sed 's/M//')
+    TOTAL_RAM=$(($USED_RAM + $UNUSED_RAM))
+    echo $USED_RAM
+    echo $UNUSED_RAM
+    echo $TOTAL_RAM
+    RAM_PCT=$((100 * $USED_RAM / $TOTAL_RAM))
 fi
 
 echo "🌡 $TEMPERATURE CPU: $CPU_PCT% RAM: $RAM_PCT%"
-# RAM=$(echo "$ALL_DATA" | grep -E "Phys")
-# echo $RAM
