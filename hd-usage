@@ -81,7 +81,7 @@ else
     RAM_PCT=$((100 * $USED_RAM / $TOTAL_RAM))
 fi
 
-[ -n "$TEMPERATURE" ] && TEMPERATURE="🌡 $TEMPERATURE"
-[ -n "$CPU_PCT" ] && CPU_PCT="CPU: $CPU_PCT%"
-[ -n "$RAM_PCT" ] && RAM_PCT="RAM: $RAM_PCT%"
-echo "$TEMPERATURE $CPU_PCT $RAM_PCT"
+[ -z "$TEMPERATURE" ] && TEMPERATURE="NaN"
+[ -z "$CPU_PCT" ] && CPU_PCT="NaN"
+[ -z "$RAM_PCT" ] && RAM_PCT="NaN"
+echo "🌡 $TEMPERATURE CPU: $CPU_PCT% $RAM_PCT%"
