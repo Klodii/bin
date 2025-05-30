@@ -84,4 +84,4 @@ fi
 [ -z "$TEMPERATURE" ] && TEMPERATURE="NaN"
 [ -z "$CPU_PCT" ] && CPU_PCT="NaN"
 [ -z "$RAM_PCT" ] && RAM_PCT="NaN"
-echo "🌡 $TEMPERATURE CPU: $CPU_PCT% $RAM_PCT%"
+echo "🌡 $TEMPERATURE CPU: $CPU_PCT% RAM: $RAM_PCT%"
