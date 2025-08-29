@@ -3,13 +3,13 @@ source utils
 
 function usage {
   cat <<EOF
-battery usage:
+Bluetooth device battery usage:
   general:
     -h            print this message
     -t            output tmux status bar format
     -z            output zsh prompt format
     -i            enable nerd fonts battery indicators
-    -p            use pmset (more accurate)
+    -d            bluetooth device MAC to check, buy default we check the Adv360 keyboard
   colors:                                                 tmux     zsh
     -g <color>    good battery level      default: 1;32 | green  | 64
     -m <color>    middle battery level    default: 1;33 | yellow | 136
@@ -23,7 +23,7 @@ if [[ $1 == '-h' ]]; then
 fi
 
 function set_defaults {
-    charging=false
+    DEVICE_MAC="F5:B4:B1:6D:EA:53" # Adv360 Pro keyboard
     color_template="%s"
     TMUX_COLOR_TEMPLATE="#[fg=%s]"
     ZSH_COLOR_TEMPLATE="%%F{%s}"
@@ -42,39 +42,12 @@ function set_defaults {
 function battery_charge {
   case $(uname -s) in
   "Darwin")
-    if ((pmset_on)) && command -v pmset &>/dev/null; then
-      [ "$(pmset -g batt | grep -o 'AC Power')" ] && charging=true
-      BATT_PCT=$(pmset -g batt | grep -o '[0-9]*%' | tr -d %)
-    else
-      while read key value; do
-        case $key in
-        "MaxCapacity")
-          maxcap=$value
-          ;;
-        "CurrentCapacity")
-          curcap=$value
-          ;;
-        "ExternalConnected")
-          [ $value == "Yes" ] && charging=true
-          ;;
-        esac
-        if [[ -n "$maxcap" && -n $curcap ]]; then
-          BATT_PCT=$((100 * curcap / maxcap))
-        fi
-      done < <(ioreg -n AppleSmartBattery -r | grep -o '"[^"]*" = [^ ]*' | sed -e 's/= //g' -e 's/"//g' | sort)
-    fi
+      echo "No option available"
+      BATT_PCT="NaN"
+      exit_w_error "Script not available for MacOs"
     ;;
   "Linux")
-    battery_path=/sys/class/power_supply/BAT0
-    [ -d "$battery_path" ] || exit_w_error "There is no battery"
-    battery_state=$(cat $battery_path/status)
-    battery_full=$battery_path/energy_full
-    battery_current=$battery_path/energy_now
-
-    [ $battery_state == 'Charging' ] && charging=true
-    now=$(cat $battery_current)
-    full=$(cat $battery_full)
-    BATT_PCT=$((100 * $now / $full))
+      BATT_PCT=$(bluetoothctl info $DEVICE_MAC | grep -E "Battery Percentage" | sed -E "s/.*\((.+)\)/\1/")
     ;;
   esac
 }
@@ -97,30 +70,21 @@ function apply_colors {
 
 # Apply the correct icon to the battery status prompt
 function apply_battery_icon {
-  if $charging; then
-    GRAPH=${charge_icon}
-  else
-    case $BATT_PCT in
-        100) GRAPH="█" ;;
-        9[0-9]) GRAPH="▇" ;;
-        8[0-9]|7[0-9]) GRAPH="▆" ;;
-        6[0-9]|5[0-9]) GRAPH="▅" ;;
-        4[0-9]|3[0-9]) GRAPH="▃" ;;
-        2[0-9]) GRAPH="▂" ;;
-        1[0-9]|[0-9]) GRAPH="▁" ;;
-    esac
-  fi
+  case $BATT_PCT in
+      100) GRAPH="█" ;;
+      9[0-9]) GRAPH="▇" ;;
+      8[0-9]|7[0-9]) GRAPH="▆" ;;
+      6[0-9]|5[0-9]) GRAPH="▅" ;;
+      4[0-9]|3[0-9]) GRAPH="▃" ;;
+      2[0-9]) GRAPH="▂" ;;
+      1[0-9]|[0-9]) GRAPH="▁" ;;
+  esac
+  GRAPH="$GRAPH󰂯"
 }
 
 # Print the battery status
 function print_status {
-  if [ "$show_battery_icon" = true ] ; then
-    apply_battery_icon
-  else
-    if $charging; then
-      GRAPH=${charge_icon}
-    fi
-  fi
+  [ "$show_battery_icon" = true ] && apply_battery_icon
 
   if ((output_tmux)); then
     printf "%s%s %s%s" "$COLOR" "$BATT_PCT%" "$GRAPH" "#[default]"
@@ -133,7 +97,7 @@ function print_status {
 
 set_defaults
 # Read args
-while getopts "g:m:w:tizp" opt; do
+while getopts "g:m:w:d:tiz" opt; do
   case $opt in
   g)
     good_color=$OPTARG
@@ -161,8 +125,8 @@ while getopts "g:m:w:tizp" opt; do
     middle_color="136"
     warn_color="160"
     ;;
-  p)
-    pmset_on=1
+  d)
+    DEVICE_MAC="$OPTARG"
     ;;
   \?)
     echo "Invalid option: -$OPTARG"
