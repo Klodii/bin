@@ -1,0 +1,45 @@
+#!/bin/bash -
+ROOT_GIT_DIR=$(git rev-parse --show-toplevel)
+WORKTREE_DIR=${ROOT_GIT_DIR%/*} # parent directory of the current git top-level directory
+
+SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
+
+help()
+{
+    # here-document used instead of echoing all lines
+   cat <<-HMESSAGE
+Remove git worktree located in "$WORKTREE_DIR"
+Force the removal of the tree, all uncommited changes will be lost.
+
+It is possible to select more than one branch at a time, by using the TAB to select
+
+
+Syntax: $SCRIPT_NAME [-h][--force]
+Options:
+    -h       Print this help and exit
+Long option:
+    --help     Print this help and exit
+HMESSAGE
+}
+
+while getopts "h-:" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        \?)
+            echo "Error: Invalid option"
+            exit 1;;
+    esac
+done
+
+WORKTREES=$(tree_ls)
+[ $? != 0 ] && exit 1
+WORKTREES=$(tree_ls | sed "s|$WORKTREE_DIR/||")
+CHOOSEN=$(echo "$WORKTREES" | fzf --multi --height '70%' --header 'Choose the tree to remove' --reverse --border --ansi | awk '{print $1}')
+for worktree in $CHOOSEN
+do
+    TREE_PATH=$WORKTREE_DIR/$worktree
+    git worktree remove --force $TREE_PATH && echo "$worktree worktree removed"
+done
+

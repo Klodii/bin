@@ -1,0 +1,86 @@
+#!/bin/bash -
+ROOT_GIT_DIR=$(git rev-parse --show-toplevel)
+WORKTREE_DIR=${ROOT_GIT_DIR%/*} # parent directory of the current git top-level directory
+
+SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
+help()
+{
+    # here-document used instead of echoing all lines
+   cat <<-HMESSAGE
+Create a Git Worktree.
+
+You can define files to copy into the newly created worktree. This is useful
+for including files that are in your .gitignore (e.g., .env files) and thus not
+tracked by the repository
+
+To do this, create a configuration file named "$WORKTREE_DIR/.treerc" with an
+environment variable called FILE_TO_COPY. This variable should be a list of
+file paths that you want copied into the new worktree.
+
+This script is mainly designed to automate the copying of such files, saving
+you from having to do it manually each time.
+
+All worktree directories are created under: "$WORKTREE_DIR"
+The configuration file must be located at: "$WORKTREE_DIR/.treerc"
+
+Syntax: $SCRIPT_NAME [-hb] <branch> <directory name>
+Options:
+    -h --help     Print this help and exit.
+    -b --branch   Create branch
+HMESSAGE
+
+}
+
+CREATE_BRANCH=false
+# Get the options
+# -: is used to enable long arguments
+while getopts "hb-:" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        b )
+            CREATE_BRANCH=true;;
+        - ) # Long arguments section
+            case $OPTARG in
+                help)
+                    help
+                    exit 0;;
+                branch)
+                    CREATE_BRANCH=true;;
+            esac
+            ;;
+        \?)
+            echo "Error: Invalid option"
+            exit 1;;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
+
+[ -z "$1" ] && echo "Branch missing" && exit 1
+BRANCH=$1
+NEW_WORKTREE="$WORKTREE_DIR/${2:-$BRANCH}"
+
+if $CREATE_BRANCH; then
+    git branch $BRANCH
+    echo "Created new branch"
+
+    FULL_BRANCH_NAME=$(git branch -a | grep "^$BRANCH$"); \
+    BRANCH_NAME=$(echo $FULL_BRANCH_NAME | sed 's@remotes/origin/@@'); \
+    git checkout $BRANCH_NAME; \
+fi
+
+git worktree add $NEW_WORKTREE $BRANCH
+[ $? != 0 ] && { echo "Error while creating the worktree"; exit 1; }
+
+echo "Created $NEW_WORKTREE worktree"
+# check if the .treerc file is contained in WORKTREE_DIR
+RC_FILE="$WORKTREE_DIR/.treerc"
+if [ -f "$RC_FILE" ]; then
+    source "$RC_FILE"
+    for file in "${FILE_TO_COPY[@]}"; do
+        cp -v "$file" $NEW_WORKTREE
+    done
+fi
+

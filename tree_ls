@@ -1,0 +1,29 @@
+#!/bin/bash -
+SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
+
+help()
+{
+    # here-document used instead of echoing all lines
+   cat <<-HMESSAGE
+List all working directories
+
+Syntax: $SCRIPT_NAME [-h]
+Options:
+    -h       Print this help and exit
+
+HMESSAGE
+}
+
+while getopts "h" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+       \?)
+            echo "Error: Invalid option"
+            exit 1;;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
+git worktree list

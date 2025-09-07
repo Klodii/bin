@@ -1,0 +1,40 @@
+#!/bin/bash -
+ROOT_GIT_DIR=$(git rev-parse --show-toplevel)
+WORKTREE_DIR=${ROOT_GIT_DIR%/*} # parent directory of the current git top-level directory
+
+SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
+
+help()
+{
+    # here-document used instead of echoing all lines
+   cat <<-HMESSAGE
+Go to a working directory located in "$WORKTREE_DIR".
+
+To use the script you need to 'source' it, if you don't do that the scrit will
+run in a subshell, and the directory will be changed in it and not in your shell.
+
+Syntax: $SCRIPT_NAME [-h]
+Options:
+    -h       Print this help and exit
+
+HMESSAGE
+}
+
+while getopts "h" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+       \?)
+            echo "Error: Invalid option"
+            exit 1;;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
+WORKTREES=$(tree_ls)
+[ $? != 0 ] && exit 1
+
+WORKTREES=$(tree_ls | sed "s|$WORKTREE_DIR/||")
+CHOOSEN=$(echo "$WORKTREES" | fzf --height "25%" --header "Choose the workingtree" --reverse --border | awk '{print $1}')
+[ -n "$CHOOSEN" ] && echo "$WORKTREE_DIR/$CHOOSEN"

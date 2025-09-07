@@ -1,0 +1,34 @@
+#!/bin/bash
+SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
+
+function help {
+cat <<-HMESSAGE
+The command cluster different operations that can be done to a git worktree.
+
+Syntax: $SCRIPT_NAME [-h] <ls|new|rm|switch> [<args>]
+
+Options:
+    -h  print this help and exit.
+
+Subcommands:
+    ls  list all working directories
+    new create a new working directory
+    rm  remove a working directory
+    cd  change directory to the selected working directory
+HMESSAGE
+}
+
+SUBCOMMAND="$1"
+[ -z "$SUBCOMMAND" ] && { help; exit 1; }
+[ "$SUBCOMMAND" = "-h" ] && { help;  exit 0; }
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+COMMAND_FILE="${SCRIPT_DIR}/tree_${SUBCOMMAND}"
+if [ ! -f "$COMMAND_FILE" ]; then
+    echo "Error: Unknown subcommand '$SUBCOMMAND'. File '$COMMAND_FILE' not found."
+    exit 1
+fi
+
+shift # Move past the subcommand argument so getopts can process the flags
+
+source "$COMMAND_FILE" "$@"
