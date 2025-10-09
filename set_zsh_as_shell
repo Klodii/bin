@@ -1,0 +1,38 @@
+#!/bin/bash -
+source utils
+
+SCRIPT_NAME=${0##*/}
+
+function help {
+   cat <<-HMESSAGE
+Set the SHELL to zsh
+
+Syntax: $SCRIPT_NAME [-h]
+Options:
+    -h     Print this help and exit.
+HMESSAGE
+}
+
+
+while getopts "h" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+    esac
+done
+shift $((OPTIND -1))
+
+current_shell=$(echo $SHELL)
+if [ "$current_shell" != *'zhs'* ]; then
+    zsh_path=$(which zsh)
+    if [ -z "$zsh_path"]; then
+        exit_w_error "zsh is not installed in the system"
+    fi
+
+    echo "Setting zsh as the default shell"
+    chsh -s $(which zsh)
+    log_info "Please restart the shell or terminal"
+    exit 1
+fi
+
