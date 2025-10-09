@@ -2,27 +2,33 @@
 
 export RED="\033[1;31m"
 export YELLOW="\033[1;33m"
+export BLUE="\033[1;34m"
 export NC="\033[0m" # No Color
 
-function log_info {
+function log_title {
     printf "${YELLOW}$1${NC}\n"
+}
+function log_info {
+    printf "${BLUE}$1${NC}\n"
 }
 function log_error {
     printf "${RED}$1${NC}\n"
 } >&2 # redirect to STDERR
+
 function exit_w_error {
     log_error "$1" && exit 1
 } >&2 # redirect to STDERR
+
 function is_installed {
-    # The function has a pure scope of information rather than to use.
-    # Instead, use the `hash` command directly
+    # Checks if a command or program is installed and accessible in the system's PATH.
     #
-    # hash keeps the locations of recently executed programs and shows them whenever we want to see it.
-    # It provides a complete pathname of each command name.
+    # It uses the 'hash' built-in command, which searches for the command in the PATH.
+    # This function is useful because it returns a standard exit code:
+    #   - Exit code 0 (Success) if the command is found and hashed.
+    #   - Exit code 1 (Failure) if the command is not found.
     #
-    # When called with a command_name, it is searched for in the path environment variable,
-    # and if found, is added to the list of remembered commands, and exits with
-    # code 0, if not found exit with code 1.
+    # The '2> /dev/null' redirects any error messages (like 'command not found')
+    # to silence the output, ensuring the function only relies on the exit status.
 
     command_name=$1
     hash $command_name 2> /dev/null # redirect error messages
@@ -39,10 +45,6 @@ function current_os {
             echo 'linux'
         fi
     fi
-}
-
-function log_info {
-    printf "${YELLOW}$1${NC}\n"
 }
 
 function get_tmpdir {
