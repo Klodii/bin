@@ -75,8 +75,8 @@ git worktree add $NEW_WORKTREE $BRANCH
 [ $? != 0 ] && { echo "Error while creating the worktree"; exit 1; }
 
 echo "Created $NEW_WORKTREE worktree"
-# check if the .treerc file is contained in WORKTREE_DIR
-RC_FILE="$WORKTREE_DIR/.treerc"
+# check if the .gtreerc file is contained in WORKTREE_DIR
+RC_FILE="$WORKTREE_DIR/.gtreerc"
 if [ -f "$RC_FILE" ]; then
     source "$RC_FILE"
     for file in "${FILE_TO_COPY[@]}"; do

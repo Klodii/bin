@@ -33,9 +33,9 @@ while getopts "h-:" option; do
     esac
 done
 
-WORKTREES=$(tree_ls)
+WORKTREES=$(gtree_ls)
 [ $? != 0 ] && exit 1
-WORKTREES=$(tree_ls | sed "s|$WORKTREE_DIR/||")
+WORKTREES=$(gtree_ls | sed "s|$WORKTREE_DIR/||")
 CHOOSEN=$(echo "$WORKTREES" | fzf --multi --height '70%' --header 'Choose the tree to remove' --reverse --border --ansi | awk '{print $1}')
 for worktree in $CHOOSEN
 do

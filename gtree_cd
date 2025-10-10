@@ -32,9 +32,9 @@ while getopts "h" option; do
 done
 shift $((OPTIND -1)) # remove all options from $#
 
-WORKTREES=$(tree_ls)
+WORKTREES=$(gtree_ls)
 [ $? != 0 ] && exit 1
 
-WORKTREES=$(tree_ls | sed "s|$WORKTREE_DIR/||")
+WORKTREES=$(gtree_ls | sed "s|$WORKTREE_DIR/||")
 CHOOSEN=$(echo "$WORKTREES" | fzf --height "25%" --header "Choose the workingtree" --reverse --border | awk '{print $1}')
 [ -n "$CHOOSEN" ] && echo "$WORKTREE_DIR/$CHOOSEN"
