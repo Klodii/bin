@@ -13,7 +13,7 @@ You can define files to copy into the newly created worktree. This is useful
 for including files that are in your .gitignore (e.g., .env files) and thus not
 tracked by the repository
 
-To do this, create a configuration file named "$WORKTREE_DIR/.treerc" with an
+To do this, create a configuration file named "$WORKTREE_DIR/.gtreerc" with an
 environment variable called FILE_TO_COPY. This variable should be a list of
 file paths that you want copied into the new worktree.
 
@@ -21,7 +21,7 @@ This script is mainly designed to automate the copying of such files, saving
 you from having to do it manually each time.
 
 All worktree directories are created under: "$WORKTREE_DIR"
-The configuration file must be located at: "$WORKTREE_DIR/.treerc"
+The configuration file must be located at: "$WORKTREE_DIR/.gtreerc"
 
 Syntax: $SCRIPT_NAME [-hb] <branch> <directory name>
 Options:
