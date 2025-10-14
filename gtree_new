@@ -1,4 +1,6 @@
 #!/bin/bash -
+source utils
+
 ROOT_GIT_DIR=$(git rev-parse --show-toplevel)
 WORKTREE_DIR=${ROOT_GIT_DIR%/*} # parent directory of the current git top-level directory
 
@@ -58,13 +60,13 @@ done
 shift $((OPTIND -1)) # remove all options from $#
 
 
-[ -z "$1" ] && echo "Branch missing" && exit 1
+[ -z "$1" ] && exit_w_error "Branch missing"
 BRANCH=$1
 NEW_WORKTREE="$WORKTREE_DIR/${2:-$BRANCH}"
 
 if $CREATE_BRANCH; then
     git branch $BRANCH
-    echo "Created new branch"
+    log_info "Created new branch"
 
     FULL_BRANCH_NAME=$(git branch -a | grep "^$BRANCH$"); \
     BRANCH_NAME=$(echo $FULL_BRANCH_NAME | sed 's@remotes/origin/@@'); \
@@ -72,15 +74,18 @@ if $CREATE_BRANCH; then
 fi
 
 git worktree add $NEW_WORKTREE $BRANCH
-[ $? != 0 ] && { echo "Error while creating the worktree"; exit 1; }
+[ $? != 0 ] && exit_w_error "Error while creating the worktree"
 
-echo "Created $NEW_WORKTREE worktree"
+log_info "Created $NEW_WORKTREE worktree"
 # check if the .gtreerc file is contained in WORKTREE_DIR
 RC_FILE="$WORKTREE_DIR/.gtreerc"
 if [ -f "$RC_FILE" ]; then
+    log_info ".gtreerc file found: coping the files to the new tree."
     source "$RC_FILE"
     for file in "${FILE_TO_COPY[@]}"; do
         cp -v "$file" $NEW_WORKTREE
     done
+else
+    log_info "No .gtreerc file found, no file has been copied to the new tree."
 fi
 

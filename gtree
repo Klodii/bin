@@ -1,4 +1,6 @@
 #!/bin/bash
+source utils
+
 SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
 
 function help {
@@ -25,8 +27,7 @@ SUBCOMMAND="$1"
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 COMMAND_FILE="${SCRIPT_DIR}/gtree_${SUBCOMMAND}"
 if [ ! -f "$COMMAND_FILE" ]; then
-    echo "Error: Unknown subcommand '$SUBCOMMAND'. File '$COMMAND_FILE' not found."
-    exit 1
+    exit_w_error "Error: Unknown subcommand '$SUBCOMMAND'. File '$COMMAND_FILE' not found."
 fi
 
 shift # Move past the subcommand argument so getopts can process the flags

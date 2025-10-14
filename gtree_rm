@@ -1,4 +1,6 @@
 #!/bin/bash -
+source utils
+
 ROOT_GIT_DIR=$(git rev-parse --show-toplevel)
 WORKTREE_DIR=${ROOT_GIT_DIR%/*} # parent directory of the current git top-level directory
 
@@ -28,8 +30,7 @@ while getopts "h-:" option; do
             help
             exit 0;;
         \?)
-            echo "Error: Invalid option"
-            exit 1;;
+            exit_w_error "Error: Invalid option";;
     esac
 done
 

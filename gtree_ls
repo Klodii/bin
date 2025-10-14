@@ -1,4 +1,5 @@
 #!/bin/bash -
+source utils
 SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
 
 help()
@@ -20,8 +21,7 @@ while getopts "h" option; do
             help
             exit 0;;
        \?)
-            echo "Error: Invalid option"
-            exit 1;;
+            exit_w_error "Error: Invalid option";;
     esac
 done
 shift $((OPTIND -1)) # remove all options from $#
