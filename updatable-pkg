@@ -42,7 +42,7 @@ case $(uname -s) in
                 n_packages=$(apt list --upgradable 2>/dev/null | grep upgradable | wc -l)
                 ;;
             *"fedora"*)
-                n_packages=$(dnf check-update | grep -E '^\S' | wc -l)
+                n_packages=$(dnf check-update 2>/dev/null | grep -E '^\S' | wc -l)
                 ;;
             *)
                 echo "To implement"
