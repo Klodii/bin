@@ -25,19 +25,21 @@ shift $((OPTIND -1)) # remove all options from $#
 
 case $(current_os) in
     "macos")
-        brew upgrade
+        CMD="brew upgrade"
         ;;
     *"arch"*)
-        sudo pacman -Syu
+        CMD="sudo pacman -Syu"
         ;;
     *"Ubuntu"*)
-        sudo apt upgrade
+        CMD="sudo apt upgrade"
         ;;
     *"fedora"*)
-        sudo dnf upgrade --refresh
+        CMD="sudo dnf upgrade --refresh"
         ;;
     *)
-        echo "To implement"
-        exit 1
+        exit_w_error "This OS is not handled yet."
         ;;
 esac
+
+log_title "Executing: $CMD"
+$CMD
