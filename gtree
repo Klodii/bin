@@ -5,18 +5,23 @@ SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the scr
 
 function help {
 cat <<-HMESSAGE
-The command cluster different operations that can be done to a git worktree.
+A utility script to manage Git worktrees through subcommands.
 
-Syntax: $SCRIPT_NAME [-h] <ls|new|rm|switch> [<args>]
+Usage: $SCRIPT_NAME [-h] <ls|new|rm|choose> [<args>]
+
 
 Options:
-    -h  print this help and exit.
+  -h          Show this help message and exit.
 
 Subcommands:
-    ls  list all working directories
-    new create a new working directory
-    rm  remove a working directory
-    cd  change directory to the selected working directory
+  ls          List all Git worktrees.
+  new         Create a new Git worktree.
+  rm          Remove an existing Git worktree.
+  choose      Choose a Git worktree and print its path.
+
+Description:
+  This script groups common Git worktree operations under a single interface,
+  simplifying workflows that involve multiple working directories.
 HMESSAGE
 }
 
@@ -33,4 +38,4 @@ fi
 
 shift # Move past the subcommand argument so getopts can process the flags
 
-source "$COMMAND_FILE" "$@"
+"$COMMAND_FILE" "$@"
