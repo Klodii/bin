@@ -35,6 +35,9 @@ case $(uname -s) in
             *"Ubuntu"*)
                 apt upgrade
                 ;;
+            *"fedora"*)
+                dnf upgrade --refresh
+                ;;
             *)
                 echo "To implement"
                 exit 1
