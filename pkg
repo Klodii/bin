@@ -5,17 +5,20 @@ SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the scr
 
 function help {
 cat <<-HMESSAGE
-The command cluster different operations that can be done to the packages of the system.
-The scripts is usefull because hides all the different commands of different Operating systems.
+A wrapper script that abstracts package operations across different operating systems.
 
 Syntax: $SCRIPT_NAME [-h] <checkupdates|upgrade> [<args>]
 
 Options:
-    -h  print this help and exit.
+  -h               Show this help message and exit.
 
 Subcommands:
-    checkupdates  list all the packages that can be updated
-    upgrade       upgrade all the packages
+  checkupdates     List all packages that have available updates.
+  upgrade          Upgrade all installed packages to their latest version.
+
+Description:
+  This script simplifies package management by providing a unified interface
+  for various operating systems, hiding the underlying command differences.
 HMESSAGE
 }
 
