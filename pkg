@@ -35,4 +35,4 @@ fi
 
 shift # Move past the subcommand argument so getopts can process the flags
 
-source "$COMMAND_FILE" "$@"
+"$COMMAND_FILE" "$@"
