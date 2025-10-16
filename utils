@@ -42,24 +42,34 @@ function current_os {
         if grep -q Microsoft /proc/version; then
             echo 'microsoft'
         else
-            echo 'linux'
+            case $(cat /etc/*-release) in
+                *"arch"*)
+                    echo 'arch'
+                    ;;
+                *"Ubuntu"*)
+                    echo 'ubuntu'
+                    ;;
+                *"fedora"*)
+                    echo 'fedora'
+                    ;;
+                *)
+                    echo "linux"
+                    ;;
+            esac
         fi
     fi
 }
 
 function get_tmpdir {
     # normalize TMPDIR cross Linux, macOS
-    case $(current_os) in
-        'macos')
-            # $TMPDIR returns a user tmp directory
-            # /tmp or /private/tmp is a tmp directory accessable by all users
-            # we choose to return the user tmp directory
-            echo $TMPDIR
-            ;;
-        'linux')
-            echo '/tmp'
-            ;;
-    esac
+    if [ $(current_os) = 'macos' ]; then
+        # $TMPDIR returns a user tmp directory
+        # /tmp or /private/tmp is a tmp directory accessable by all users
+        # we choose to return the user tmp directory
+        echo $TMPDIR
+    else
+        echo '/tmp'
+    fi
 }
 
 function in_ssh {

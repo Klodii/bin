@@ -49,7 +49,20 @@ if [ $LIST == true ]; then
 fi
 
 
-if [ $(current_os) == 'linux' ]; then
+if [ $(current_os) = 'macos' ]; then
+    ALL_DATA=$(top -l 1 | head)
+    GROUP_CPU_USAGE=$(echo "$ALL_DATA" | grep "CPU")
+    USER_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% user.*/\1/')
+    SYS_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% sys.*/\1/')
+    CPU_PCT=$(awk "BEGIN { print $USER_CPU + $SYS_CPU }")
+    TEMPERATURE=$(sudo powermetrics --samplers smc -i1 -n1 |grep -i "CPU die temperature" | awk '{print $4}')
+
+    GROUP_RAM_USAGE=$(echo "$ALL_DATA" | grep PhysMem)
+    USED_RAM=$(echo "$GROUP_RAM_USAGE" | awk '{print $2}' | sed 's/M//')
+    UNUSED_RAM=$(echo "$GROUP_RAM_USAGE" | awk '{print $8}' | sed 's/M//')
+    TOTAL_RAM=$(($USED_RAM + $UNUSED_RAM))
+    RAM_PCT=$((100 * $USED_RAM / $TOTAL_RAM))
+else
     GROUP_CPU_USAGE=$(top -n1 | grep "%Cpu(s)")
     IDLE_CPU=$(echo "$GROUP_CPU_USAGE" | sed -E 's/.* ([0-9]*[.][0-9]*).*id.*/\1/')
     CPU_PCT=$(awk "BEGIN { print 100 - $IDLE_CPU }")
@@ -65,20 +78,6 @@ if [ $(current_os) == 'linux' ]; then
     else
         TEMPERATURE=$(sensors | grep 'Core 0' | awk '{print $3}')
     fi
-
-else
-    ALL_DATA=$(top -l 1 | head)
-    GROUP_CPU_USAGE=$(echo "$ALL_DATA" | grep "CPU")
-    USER_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% user.*/\1/')
-    SYS_CPU=$(echo $GROUP_CPU_USAGE | sed -E 's/.* ([0-9]*[.][0-9]*)% sys.*/\1/')
-    CPU_PCT=$(awk "BEGIN { print $USER_CPU + $SYS_CPU }")
-    TEMPERATURE=$(sudo powermetrics --samplers smc -i1 -n1 |grep -i "CPU die temperature" | awk '{print $4}')
-
-    GROUP_RAM_USAGE=$(echo "$ALL_DATA" | grep PhysMem)
-    USED_RAM=$(echo "$GROUP_RAM_USAGE" | awk '{print $2}' | sed 's/M//')
-    UNUSED_RAM=$(echo "$GROUP_RAM_USAGE" | awk '{print $8}' | sed 's/M//')
-    TOTAL_RAM=$(($USED_RAM + $UNUSED_RAM))
-    RAM_PCT=$((100 * $USED_RAM / $TOTAL_RAM))
 fi
 
 [ -z "$TEMPERATURE" ] && TEMPERATURE="NaN"
