@@ -7,7 +7,7 @@ weather_status=$(timeout 5s weather -s || echo 'weather script is taking too lon
 volume_status=$(vc -i)
 battery_status=$(battery -i)
 wifi_status=$(wifi -i)
-pkg_status=$(updatable-pkg -i)
+pkg_status=$(pkg checkupdates -i)
 datetime=$(date "+%d %b %Y (%a) %H:%M")
 
 echo "$weather_status$DELIM$volume_status$DELIM$battery_status$DELIM$wifi_status$DELIM$pkg_status$DELIM$datetime"
