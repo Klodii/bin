@@ -31,24 +31,25 @@ shift $((OPTIND -1)) # remove all options from $#
 
 case $(uname -s) in
     "Darwin")
-      n_packages=$(brew outdated -q 2>/dev/null | wc -l)
+      CMD="brew outdated -q 2>/dev/null | wc -l"
     ;;
     "Linux")
         case $(cat /etc/*-release) in
             *"arch"*)
-                n_packages=$(checkupdates 2>/dev/null | wc -l)
+                CMD="checkupdates 2>/dev/null | wc -l"
                 ;;
             *"Ubuntu"*)
-                n_packages=$(apt list --upgradable 2>/dev/null | grep upgradable | wc -l)
+                CMD="apt list --upgradable 2>/dev/null | grep upgradable | wc -l"
                 ;;
             *"fedora"*)
-                n_packages=$(dnf check-update 2>/dev/null | grep -E '^\S' | wc -l)
+                CMD="dnf check-update 2>/dev/null | grep -E '^\S' | wc -l"
                 ;;
             *)
-                echo "To implement"
-                exit 1
+                exit_w_error "This OS is not handled yet."
                 ;;
         esac
 esac
 
+log_title "Executing: $CMD"
+n_packages=$(eval "$CMD")
 echo $ICON $n_packages
