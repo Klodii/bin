@@ -29,27 +29,29 @@ while getopts "hi" option; do
 done
 shift $((OPTIND -1)) # remove all options from $#
 
-case $(uname -s) in
-    "Darwin")
-      CMD="brew outdated -q 2>/dev/null | wc -l"
-    ;;
-    "Linux")
-        case $(cat /etc/*-release) in
-            *"arch"*)
-                CMD="checkupdates 2>/dev/null | wc -l"
-                ;;
-            *"Ubuntu"*)
-                CMD="apt list --upgradable 2>/dev/null | grep upgradable | wc -l"
-                ;;
-            *"fedora"*)
-                CMD="dnf check-update 2>/dev/null | grep -E '^\S' | wc -l"
-                ;;
-            *)
-                exit_w_error "This OS is not handled yet."
-                ;;
-        esac
+case $(current_os) in
+    "macos")
+        os='MacOS'
+        CMD="brew outdated -q 2>/dev/null | wc -l"
+        ;;
+    "arch")
+        os='Arch Linux'
+        CMD="checkupdates 2>/dev/null | wc -l"
+        ;;
+    "Ubuntu")
+        os='Ubuntu Linux'
+        CMD="apt list --upgradable 2>/dev/null | grep upgradable | wc -l"
+        ;;
+    "fedora")
+        os='Fedora Linux'
+        CMD="dnf check-update 2>/dev/null | grep -E '^\S' | wc -l"
+        ;;
+    *)
+        exit_w_error "This OS is not handled yet."
+        ;;
 esac
 
+log_title "Identified OS: $os"
 log_title "Executing: $CMD"
 n_packages=$(eval "$CMD")
 echo $ICON $n_packages

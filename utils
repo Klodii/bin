@@ -35,29 +35,32 @@ function is_installed {
 }
 
 function current_os {
-    OPERATNG_SYSTEM=$(uname -s)
-    if [ $OPERATNG_SYSTEM = 'Darwin' ]; then
-        echo 'macos'
-    else
-        if grep -q Microsoft /proc/version; then
-            echo 'microsoft'
-        else
-            case $(cat /etc/*-release) in
-                *"arch"*)
-                    echo 'arch'
-                    ;;
-                *"Ubuntu"*)
-                    echo 'ubuntu'
-                    ;;
-                *"fedora"*)
-                    echo 'fedora'
-                    ;;
-                *)
-                    echo "linux"
-                    ;;
-            esac
-        fi
-    fi
+    case "$(uname -s)" in
+        Darwin)
+            echo 'macos'
+            return
+            ;;
+        Linux)
+            # Check for WSL
+            if grep -qi microsoft /proc/version 2>/dev/null; then
+                echo "wsl"
+                return
+            fi
+            if [[ -f /etc/os-release ]]; then
+                source /etc/os-release
+                echo "$ID"
+                return
+            fi
+
+            # Fallback
+            echo "linux"
+            return
+            ;;
+        *)
+            echo "unknown"
+            return
+            ;;
+    esac
 }
 
 function get_tmpdir {

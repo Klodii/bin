@@ -25,15 +25,19 @@ shift $((OPTIND -1)) # remove all options from $#
 
 case $(current_os) in
     "macos")
+        os="MacOS"
         CMD="brew upgrade"
         ;;
-    *"arch"*)
+    "arch")
+        os="Arch Linux"
         CMD="sudo pacman -Syu"
         ;;
-    *"Ubuntu"*)
+    "ubuntu")
+        os="Ubuntu Linux"
         CMD="sudo apt upgrade"
         ;;
-    *"fedora"*)
+    "fedora")
+        os="Fedora Linux"
         CMD="sudo dnf upgrade --refresh"
         ;;
     *)
@@ -41,5 +45,6 @@ case $(current_os) in
         ;;
 esac
 
+log_title "Identified OS: $os"
 log_title "Executing: $CMD"
 $CMD
