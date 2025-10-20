@@ -10,11 +10,13 @@ Syntax: $SCRIPT_NAME [-h]
 Options:
     -h            print this message
     -i            Add icons to the output
+    -q            Only print the number of packages an icon (if selected)
 EOF
 }
 
 ICON=""
-while getopts "hi" option; do
+LOG='log_info'
+while getopts "hiq" option; do
     case $option in
         h )
             help
@@ -22,6 +24,9 @@ while getopts "hi" option; do
         i )
             #   
             ICON="󰏔 "
+            ;;
+        q )
+            LOG=':' # no-op, do nothing command
             ;;
         \?)
             exit_w_error "Error: Invalid option";;
@@ -51,7 +56,7 @@ case $(current_os) in
         ;;
 esac
 
-log_title "Identified OS: $os"
-log_title "Executing: $CMD"
+$LOG "Identified OS: $os"
+$LOG "Executing: $CMD"
 n_packages=$(eval "$CMD")
 echo $ICON $n_packages
