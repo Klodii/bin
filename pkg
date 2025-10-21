@@ -3,6 +3,13 @@ source utils
 
 SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
 
+subcommands=$(cat <<-SUB
+Subcommands:
+  checkupdates     List all packages that have available updates.
+  upgrade          Upgrade all installed packages to their latest version.
+SUB
+)
+
 function help {
 cat <<-HMESSAGE
 A wrapper script that abstracts package operations across different operating systems.
@@ -12,9 +19,7 @@ Syntax: $SCRIPT_NAME [-h] <checkupdates|upgrade> [<args>]
 Options:
   -h               Show this help message and exit.
 
-Subcommands:
-  checkupdates     List all packages that have available updates.
-  upgrade          Upgrade all installed packages to their latest version.
+$subcommands
 
 Description:
   This script simplifies package management by providing a unified interface
@@ -30,7 +35,8 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 BASE_COMMAND_NAME='pkg'
 COMMAND_FILE="${SCRIPT_DIR}/${BASE_COMMAND_NAME}_${SUBCOMMAND}"
 if [ ! -f "$COMMAND_FILE" ]; then
-    exit_w_error "Error: Unknown subcommand '$SUBCOMMAND'. File '$COMMAND_FILE' not found."
+    log_error "Unknown subcommand '$SUBCOMMAND'. File '$COMMAND_FILE' not found."
+    exit_w_error "$subcommands"
 fi
 
 shift # Move past the subcommand argument so getopts can process the flags
