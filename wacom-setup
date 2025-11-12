@@ -1,3 +1,25 @@
 #!/bin/bash -
+source utils
+
+DEVICE_NAME="Wacom Intuos BT S Pen stylus"
+
 # Map Wacom pet to the main monitor
-xinput map-to-output "Wacom Intuos BT S Pen stylus" DP-2
+MONITOR="DP-2"
+xinput map-to-output "$DEVICE_NAME" $MONITOR
+log_info "Wacom mapped to monitor $MONITOR"
+
+
+if hash nvim 2> /dev/null ; then
+    log_title "Changing pressure..."
+    CURRENT_PRESSURE=$(xsetwacom --get "$DEVICE_NAME" PressureCurve)
+    log_info "The current pressure is: $CURRENT_PRESSURE"
+
+    # make the pen send maximum pressure all the time
+    xsetwacom --set "$DEVICE_NAME" PressureCurve 0 100 0 100
+
+    NEW_PRESSURE=$(xsetwacom --get "$DEVICE_NAME" PressureCurve)
+    log_info "The new pressure is: $NEW_PRESSURE"
+    log_info "Now the pen sends the maximum pressure all the time, like a mouse"
+else
+    log_error "xsetwacom is not installed"
+fi
