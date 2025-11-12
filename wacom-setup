@@ -1,0 +1,3 @@
+#!/bin/bash -
+# Map Wacom pet to the main monitor
+xinput map-to-output "Wacom Intuos BT S Pen stylus" DP-2
