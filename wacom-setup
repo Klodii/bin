@@ -1,25 +1,34 @@
 #!/bin/bash -
 source utils
 
-DEVICE_NAME="Wacom Intuos BT S Pen stylus"
+PEN_DEVICE_NAME="Wacom Intuos BT S Pen stylus"
 
 # Map Wacom pet to the main monitor
 MONITOR="DP-2"
-xinput map-to-output "$DEVICE_NAME" $MONITOR
+xinput map-to-output "$PEN_DEVICE_NAME" $MONITOR
 log_info "Wacom mapped to monitor $MONITOR"
 
 
 if hash nvim 2> /dev/null ; then
     log_title "Changing pressure..."
-    CURRENT_PRESSURE=$(xsetwacom --get "$DEVICE_NAME" PressureCurve)
+    CURRENT_PRESSURE=$(xsetwacom --get "$PEN_DEVICE_NAME" PressureCurve)
     log_info "The current pressure is: $CURRENT_PRESSURE"
 
     # make the pen send maximum pressure all the time
-    xsetwacom --set "$DEVICE_NAME" PressureCurve 0 100 0 100
+    xsetwacom --set "$PEN_DEVICE_NAME" PressureCurve 0 100 0 100
 
-    NEW_PRESSURE=$(xsetwacom --get "$DEVICE_NAME" PressureCurve)
+    NEW_PRESSURE=$(xsetwacom --get "$PEN_DEVICE_NAME" PressureCurve)
     log_info "The new pressure is: $NEW_PRESSURE"
     log_info "Now the pen sends the maximum pressure all the time, like a mouse"
+
+    log_title "Setting Express keys..."
+    # keyshortcut for GIMP usage
+    PAD_DEVICE_NAME="Wacom Intuos BT S Pad pad"
+    xsetwacom set "$PAD_DEVICE_NAME" Button 8 "key shift ctrl h" # toggle tools windows
+    log_info "Express key 4 mapped to: shift+crt+h"
+
 else
     log_error "xsetwacom is not installed"
 fi
+
+
