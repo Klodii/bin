@@ -24,6 +24,8 @@ if hash nvim 2> /dev/null ; then
     log_title "Setting Express keys..."
     # keyshortcut for GIMP usage
     PAD_DEVICE_NAME="Wacom Intuos BT S Pad pad"
+    xsetwacom set "$PAD_DEVICE_NAME" Button 2 "key f2" # open "color dialog", this is a custom shortuct setted on GIMP
+    log_info "Express key 2 mapped to: f2"
     xsetwacom set "$PAD_DEVICE_NAME" Button 3 "key shift ctrl n" # create new layer
     log_info "Express key 3 mapped to: shift+crt+n"
     xsetwacom set "$PAD_DEVICE_NAME" Button 8 "key shift ctrl h" # toggle tools windows
