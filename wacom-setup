@@ -24,8 +24,10 @@ if hash nvim 2> /dev/null ; then
     log_title "Setting Express keys..."
     # keyshortcut for GIMP usage
     PAD_DEVICE_NAME="Wacom Intuos BT S Pad pad"
+    xsetwacom set "$PAD_DEVICE_NAME" Button 3 "key shift ctrl n" # create new layer
+    log_info "Express key 3 mapped to: shift+crt+n"
     xsetwacom set "$PAD_DEVICE_NAME" Button 8 "key shift ctrl h" # toggle tools windows
-    log_info "Express key 4 mapped to: shift+crt+h"
+    log_info "Express key 8 mapped to: shift+crt+h"
 
 else
     log_error "xsetwacom is not installed"
