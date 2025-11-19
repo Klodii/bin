@@ -1,5 +1,9 @@
 #!/bin/bash -
-source utils
+
+# In order to use the script with polybar we have to use the full
+# path to the utils to source it
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+source "$SCRIPT_DIR/utils"
 
 SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
 function help {
