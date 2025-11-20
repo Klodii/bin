@@ -1,0 +1,11 @@
+#!/bin/bash
+source utils
+
+log_info "Killing the existing command"
+killall -q $1
+
+log_info "Wait until shutdown..."
+while pgrep -x $1 >/dev/null; do sleep 1; done
+
+log_info "Restarting the command"
+$1 &
