@@ -16,8 +16,11 @@ for including files that are in your .gitignore (e.g., .env files) and thus not
 tracked by the repository
 
 To do this, create a configuration file named "$WORKTREE_DIR/.gtreerc" with an
-environment variable called FILE_TO_COPY. This variable should be a list of
-file paths that you want copied into the new worktree.
+environment variable called WORKING_DIR and FILE_TO_COPY. This last variable
+should be a list of file paths that you want copied into the new worktree.
+This is an example:
+    WORKING_DIR="$HOME/work/project/core"
+    FILE_TO_COPY=("$WORKING_DIR/.env" "$WORKING_DIR/application/config/key.json")
 
 This script is mainly designed to automate the copying of such files, saving
 you from having to do it manually each time.
@@ -83,7 +86,11 @@ if [ -f "$RC_FILE" ]; then
     log_info ".gtreerc file found: coping the files to the new tree."
     source "$RC_FILE"
     for file in "${FILE_TO_COPY[@]}"; do
-        cp -v "$file" $NEW_WORKTREE
+        # remove WORKING_DIR from the FILE_TO_COPY path
+        # in this way we will copy the file in the exact directory it is copied
+        # from
+        subpath=${file#$WORKING_DIR/}
+        cp -v "$file" $NEW_WORKTREE/$subpath
     done
 else
     log_info "No .gtreerc file found, no file has been copied to the new tree."
