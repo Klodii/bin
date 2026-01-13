@@ -69,7 +69,11 @@ NEW_WORKTREE="$WORKTREE_DIR/${2:-$BRANCH}"
 
 if $CREATE_BRANCH; then
     git branch $BRANCH
-    log_info "Created new branch"
+    if [ $? -eq 0 ]; then
+        log_info "Created new branch"
+    else
+        log_info "Branch already exists"
+    fi
 
     FULL_BRANCH_NAME=$(git branch -a | grep "^$BRANCH$"); \
     BRANCH_NAME=$(echo $FULL_BRANCH_NAME | sed 's@remotes/origin/@@'); \
