@@ -1,7 +1,20 @@
 #!/bin/bash -
 source utils
 
-PEN_DEVICE_NAME="Wacom Intuos BT S Pen stylus"
+if ! is_installed xinput; then
+    log_info "Installing xinput"
+    sudo dnf install -y xinput
+fi
+if ! is_installed xsetwacom; then
+    log_info "Installing xorg-x11-drv-wacom"
+    sudo dnf install -y xorg-x11-drv-wacom
+fi
+
+INPUT_DEVICES=$(xinput)
+# The name of the device might changes from computer to computer
+PEN_DEVICE_NAME="Wacom Intuos BT S Pen Pen (0x12810659)"
+log_info "Searching for device name $PEN_DEVICE_NAME"
+[[ "$INPUT_DEVICES" != *"$PEN_DEVICE_NAME"* ]] && exit_w_error "Device not found. The name migh have change, run 'xinput' and search for it"
 
 # Map Wacom pet to the main monitor
 MONITOR="DP-2"
