@@ -1,0 +1,70 @@
+#!/bin/bash -
+SCRIPT_NAME=${0##*/}
+
+function help {
+   cat <<-HMESSAGE
+Install a pkg in your machine.
+
+Usage:
+  $SCRIPT_NAME [-h] <pkg-directory> <path-to-command>
+
+Description:
+  The package will be copied to /opt and then a symlink of the command will be created in
+  /usr/bin (which is in your PATH)
+
+Options:
+  -h     Print this help message and exit.
+
+Examples:
+  $SCRIPT_NAME zen-browser zen
+
+
+
+
+Install a package on your machine.
+
+Usage:
+  sudo $SCRIPT_NAME [-h] <pkg-directory> <command>
+
+Description:
+  The package will be copied to /opt, and a symlink to the specified command will be
+  created in /usr/local/bin (which is in your PATH).
+
+Options:
+  -h     Print this help message and exit.
+
+Arguments:
+  <pkg-directory>   Directory containing the package to install (copied to /opt)
+  <command>         Name or relative path of the executable inside the package directory to symlink
+
+Examples:
+  sudo $SCRIPT_NAME zen-browser zen
+  sudo $SCRIPT_NAME myapp/ bin/myapp
+
+After installation, you can run the command directly from anywhere:
+  zen
+
+HMESSAGE
+}
+
+while getopts "h" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        \?)
+            echo "Error: Invalid option"
+            exit 1;;
+    esac
+done
+
+PKG_DIRECTORY="$1"
+PKG_DIRECTORY="${PKG_DIRECTORY%/}" # remove a the possible trailing slash
+COMMAND="$2"
+if [[ -z "$PKG_DIRECTORY" || -z "$COMMAND_PATH" ]]; then
+    echo "Error: Missing arguments"
+    help
+    exit 1
+fi
+sudo cp -v -r "$PKG_DIRECTORY" /opt
+sudo ln -sv "/opt/$PKG_DIRECTORY/$COMMAND" "/usr/local/bin/$COMMAND"
