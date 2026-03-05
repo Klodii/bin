@@ -4,18 +4,23 @@ SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the scr
 function help {
     # here-document used instead of echoing all lines
    cat <<-HMESSAGE
-Explaing what the program does
+Brief explanation of what the program does
 
-Syntax: $SCRIPT_NAME [-hv][-n value] <arg1> <arg2>
+Usage:
+  $SCRIPT_NAME [-hv][-n value] <arg1> <arg2>
+
+Description:
+  Describe what the command does
+
 Options:
-    -h     Print this help and exit.
-    -v     Make more verbose the messages
-    -n     Example of long option that accepts a value
+  -h     Print this help and exit.
+  -v     Make more verbose the messages
+  -n     Example of long option that accepts a value
 
 Long option:
-    --help     Print this help and exit.
-    --verbose  Make more verbose the messages
-    --name     Example of long option that accepts a value
+  --help     Print this help and exit.
+  --verbose  Make more verbose the messages
+  --name     Example of long option that accepts a value
 HMESSAGE
 }
 
