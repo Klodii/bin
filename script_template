@@ -21,6 +21,10 @@ Long option:
   --help     Print this help and exit.
   --verbose  Make more verbose the messages
   --name     Example of long option that accepts a value
+
+Arguments:
+  <arg1>   Directory containing the package to install
+  <arg2>   Name or relative path of the executable inside the package directory to symlink
 HMESSAGE
 }
 
