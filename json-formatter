@@ -1,0 +1,47 @@
+#!/bin/bash -
+SCRIPT_NAME=${0##*/}
+
+function help {
+   cat <<-HMESSAGE
+Format a JSON string.
+
+Usage:
+  $SCRIPT_NAME [-h] [json]
+
+Description:
+  Formats JSON using jq. The JSON input can be provided either as
+  a command-line argument or via standard input (stdin).
+
+Options:
+  -h     Print this help message and exit.
+
+Examples:
+  $SCRIPT_NAME '{"a":1}'
+  echo '{"a":1}' | $SCRIPT_NAME
+HMESSAGE
+}
+
+while getopts "h" option; do
+    case $option in
+        h )
+            help
+            exit 0;;
+        \?)
+            echo "Error: Invalid option"
+            exit 1;;
+    esac
+done
+
+
+if hash jq 2> /dev/null; then
+    if [ -t 0 ]; then
+        # JSON is provided as a command-line argument
+        echo "$1" | jq
+    else
+        # JSON is provided via a pipe or redirected stdin
+        jq
+    fi
+else
+  echo "jq is not installed" >&2
+  exit 1
+fi
