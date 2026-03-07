@@ -3,25 +3,8 @@ SCRIPT_NAME=${0##*/}
 
 function help {
    cat <<-HMESSAGE
-Install a pkg in your machine.
-
-Usage:
-  $SCRIPT_NAME [-h] <pkg-directory> <path-to-command>
-
-Description:
-  The package will be copied to /opt and then a symlink of the command will be created in
-  /usr/bin (which is in your PATH)
-
-Options:
-  -h     Print this help message and exit.
-
-Examples:
-  $SCRIPT_NAME zen-browser zen
-
-
-
-
-Install a package on your machine.
+Install a package, which is not handled by the packeg manager, on your machine.
+ONLY FOR LINUX OS.
 
 Usage:
   sudo $SCRIPT_NAME [-h] <pkg-directory> <command>
