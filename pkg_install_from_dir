@@ -1,4 +1,6 @@
 #!/bin/bash -
+source utils
+
 SCRIPT_NAME=${0##*/}
 
 function help {
@@ -40,6 +42,9 @@ while getopts "h" option; do
             exit 1;;
     esac
 done
+
+[ $(current_os) = 'wsl' ] && exit_w_error "The script can't be run on a Windows OS"
+
 
 PKG_DIRECTORY="$1"
 PKG_DIRECTORY="${PKG_DIRECTORY%/}" # remove a the possible trailing slash
