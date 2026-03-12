@@ -29,9 +29,9 @@ HMESSAGE
 }
 
 function exit_w_error {
-    echo "$1"
+    echo "$1" >&2 # redirect to STDERR
     exit 1
-} >&2 # redirect to STDERR
+}
 
 DEBUG=':' # no-op, do nothing command
 # Get the options
