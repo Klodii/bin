@@ -38,20 +38,13 @@ DEBUG=':' # no-op, do nothing command
 # -: is used to enable long arguments
 while getopts "hvn:-:" option; do
     case $option in
-        h )
-            help
-            exit 0;;
-        v )
-            DEBUG='echo';;
-        n )
-            NAME=$OPTARG;;
+        h ) help; exit 0;;
+        v ) DEBUG='echo';;
+        n ) NAME=$OPTARG;;
         - ) # Long arguments section
-            case $OPTARG in
-                help)
-                    help
-                    exit 0;;
-                verbose)
-                    DEBUG='echo';;
+            case "${OPTARG}" in
+                help) help; exit 0;;
+                verbose) DEBUG='echo';;
                 name=*) # case where the user usese the = to separate the value
                     # through parameter expanspansion string manipulation
                     # we remove all the character previous, and including, the =
@@ -64,7 +57,7 @@ while getopts "hvn:-:" option; do
                     # whe have to jump the parameter taken, it is not a option
                     let OPTIND++
                     ;;
-
+                *) exit_w_error "Unknown option --${OPTARG}" ;;
             esac
             ;;
         \?)
