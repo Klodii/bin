@@ -7,8 +7,9 @@ subcommands=$(cat <<-SUB
 Subcommands:
   checkupdates     List all packages that have available updates.
   upgrade          Upgrade all installed packages to their latest version.
-  install          Install a package from the package manager
+  install          Install a package via package manager
   install_from_dir Install a package from a directory
+  remove           Remove/Uninstall a package via package manager
 SUB
 )
 

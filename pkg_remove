@@ -1,0 +1,82 @@
+#!/bin/bash -
+source utils
+
+SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
+function help {
+  cat <<EOF
+Remove/uninstall a package:
+
+Usage:
+  $SCRIPT_NAME [-h] <pkg-name>
+
+Options:
+  -h     Print this help message and exit.
+  -d     Remove packages that were installed as dependencies but are no longer needed.
+
+Arguments:
+  <pkg-name>     Name of the package to remove
+
+Examples:
+  $SCRIPT_NAME htop
+
+EOF
+}
+
+RM_DEPENDENCIES='false'
+while getopts "hd" option; do
+    case $option in
+        h ) help; exit 0;;
+        d ) RM_DEPENDENCIES='true';;
+        \?) exit_w_error "Error: Invalid option";;
+    esac
+done
+shift $((OPTIND -1)) # remove all options from $#
+
+case $(current_os) in
+    "macos")
+        os="MacOS"
+        CMD="brew uninstall"
+        # Homebrew doesn't have a direct "autoremove" for a specific pkg,
+        # but 'cleanup' is the closest general maintenance.
+        CMD_RM_DEPENDENCIES="brew cleanup"
+        ;;
+    "arch")
+        os="Arch Linux"
+        # -Rs removes the package and its unused dependenci
+        if [[ $RM_DEPENDENCIES == 'true' ]]; then
+            CMD="sudo pacman -Rs"
+        else
+            CMD="sudo pacman -R"
+        fi
+        ;;
+    "ubuntu")
+        os="Ubuntu Linux"
+        CMD="sudo apt remove"
+        CMD_RM_DEPENDENCIES="sudo apt autoremove -y"
+        ;;
+    "fedora")
+        os="Fedora Linux"
+        CMD="sudo dnf remove"
+        CMD_RM_DEPENDENCIES="sudo dnf autoremove -y"
+        ;;
+    *)
+        exit_w_error "This OS is not handled yet."
+        ;;
+esac
+
+PKG_NAME="$1"
+if [[ -z "$PKG_NAME" ]]; then
+    echo "Error: Missing the package name"
+    help
+    exit 1
+fi
+
+log_title "Identified OS: $os"
+log_title "Executing: $CMD $PKG_NAME"
+$CMD $PKG_NAME
+
+if [[ $RM_DEPENDENCIES == 'true' && -n "$CMD_RM_DEPENDENCIES" ]]; then
+    log_title "Executing: $CMD_RM_DEPENDENCIES"
+    log_info "Cleaning up dependencies..."
+    $CMD_RM_DEPENDENCIES
+fi
