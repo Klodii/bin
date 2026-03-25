@@ -3,7 +3,12 @@
 # In order to use the script with polybar we have to use the full
 # path to the utils to source it
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
-source "$SCRIPT_DIR/utils"
+if [[ -f "$SCRIPT_DIR/utils" ]]; then
+    source "$SCRIPT_DIR/utils"
+else
+    echo "Error: utils file not found in $SCRIPT_DIR"
+    exit 1
+fi
 
 SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
 function help {
@@ -14,7 +19,7 @@ Syntax: $SCRIPT_NAME [-h]
 Options:
     -h            print this message
     -i            Add icons to the output
-    -q            Only print the number of packages an icon (if selected)
+    -q            Quiet mode (no logs, perfect for Polybar)
 EOF
 }
 
@@ -23,17 +28,10 @@ LOG='log_info'
 while getopts "hiq" option; do
     case $option in
         h )
-            help
-            exit 0;;
-        i )
-            #   
-            ICON="󰏔 "
-            ;;
-        q )
-            LOG=':' # no-op, do nothing command
-            ;;
-        \?)
-            exit_w_error "Error: Invalid option";;
+            help; exit 0;;
+        i ) ICON="󰏔 " ;;
+        q ) LOG=':' ;; # no-op, do nothing command
+        \?) exit_w_error "Error: Invalid option";;
     esac
 done
 shift $((OPTIND -1)) # remove all options from $#
@@ -62,5 +60,5 @@ esac
 
 $LOG "Identified OS: $os"
 $LOG "Executing: $CMD"
-n_packages=$(eval "$CMD")
+n_packages=$(eval "$CMD"| tr -d ' ')
 echo $ICON $n_packages
