@@ -5,11 +5,10 @@ SCRIPT_NAME=${0##*/}
 
 function help {
    cat <<-HMESSAGE
-Install a package, which is not handled by the packeg manager, on your machine.
-ONLY FOR LINUX OS.
+Install a standalone Linux package to /opt and symlink to /usr/local/bin.
 
 Usage:
-  sudo $SCRIPT_NAME [-h] <pkg-directory> <command>
+  sudo $SCRIPT_NAME [-h] <src-directory> <executable-path>
 
 Description:
   The package will be copied to /opt, and a symlink to the specified command will be
@@ -19,8 +18,8 @@ Options:
   -h     Print this help message and exit.
 
 Arguments:
-  <pkg-directory>   Directory containing the package to install (copied to /opt)
-  <command>         Name or relative path of the executable inside the package directory to symlink
+  <src-directory>   The local folder containing the app (e.g., 'zen-browser')
+  <executable-path> The path to the binary INSIDE that folder (e.g., 'zen' or 'bin/app')
 
 Examples:
   sudo $SCRIPT_NAME zen-browser zen
@@ -32,27 +31,30 @@ After installation, you can run the command directly from anywhere:
 HMESSAGE
 }
 
+[[ $(current_os) == "macos" ]] && exit_w_error "This script is for Linux only."
+[[ $(current_os) == 'wsl' ]] && exit_w_error "The script can't be run on a Windows OS"
+[[ $# -lt 2 ]] && { help; exit 1; }
+
 while getopts "h" option; do
     case $option in
-        h )
-            help
-            exit 0;;
-        \?)
-            echo "Error: Invalid option"
-            exit 1;;
+        h ) help; exit 0 ;;
+        \?) exit_w_error "Error: Invalid option" ;;
     esac
 done
 
-[ $(current_os) = 'wsl' ] && exit_w_error "The script can't be run on a Windows OS"
+SRC_DIR="${1%/}"        # Strip trailing slash
+REL_EXEC_PATH="$2"      # e.g., "bin/zen"
+DIR_NAME=$(basename "$SRC_DIR") # e.g., "zen-pkg"
+BIN_NAME=$(basename "$REL_EXEC_PATH") # e.g., "zen"
+INSTALL_PATH="/opt/$DIR_NAME"
+LINK_PATH="/usr/local/bin/$BIN_NAME"
 
+log_title "Installing $DIR_NAME to /opt"
+sudo cp -rv "$SRC_DIR" "/opt/"
 
-PKG_DIRECTORY="$1"
-PKG_DIRECTORY="${PKG_DIRECTORY%/}" # remove a the possible trailing slash
-COMMAND="$2"
-if [[ -z "$PKG_DIRECTORY" || -z "$COMMAND_PATH" ]]; then
-    echo "Error: Missing arguments"
-    help
-    exit 1
-fi
-sudo cp -v -r "$PKG_DIRECTORY" /opt
-sudo ln -sv "/opt/$PKG_DIRECTORY/$COMMAND" "/usr/local/bin/$COMMAND"
+# Create the symlink
+# -s: symbolic, -f: force (overwrite old links), -v: verbose
+log_info "Creating symlink: $INSTALL_PATH/$REL_EXEC_PATH -> $LINK_PATH"
+sudo ln -sfv "$INSTALL_PATH/$REL_EXEC_PATH" "$LINK_PATH"
+
+log_info "Done! You can now run '$BIN_NAME' from your terminal."
