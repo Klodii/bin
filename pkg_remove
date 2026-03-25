@@ -1,4 +1,6 @@
 #!/bin/bash -
+set -euo pipefail
+
 source utils
 
 SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
@@ -38,7 +40,7 @@ case $(current_os) in
         CMD="brew uninstall"
         # Homebrew doesn't have a direct "autoremove" for a specific pkg,
         # but 'cleanup' is the closest general maintenance.
-        CMD_RM_DEPENDENCIES="brew cleanup"
+        CMD_RM_DEPENDENCIES="brew autoremove"
         ;;
     "arch")
         os="Arch Linux"
@@ -48,6 +50,7 @@ case $(current_os) in
         else
             CMD="sudo pacman -R"
         fi
+        CMD_RM_DEPENDENCIES="" # Handled by the main command
         ;;
     "ubuntu")
         os="Ubuntu Linux"
@@ -73,7 +76,7 @@ fi
 
 log_title "Identified OS: $os"
 log_title "Executing: $CMD $PKG_NAME"
-$CMD $PKG_NAME
+$CMD "$PKG_NAME"
 
 if [[ $RM_DEPENDENCIES == 'true' && -n "$CMD_RM_DEPENDENCIES" ]]; then
     log_title "Executing: $CMD_RM_DEPENDENCIES"
