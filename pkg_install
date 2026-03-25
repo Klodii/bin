@@ -23,11 +23,8 @@ EOF
 
 while getopts "h" option; do
     case $option in
-        h )
-            help
-            exit 0;;
-        \?)
-            exit_w_error "Error: Invalid option";;
+        h ) help; exit 0;;
+        \?) exit_w_error "Error: Invalid option";;
     esac
 done
 shift $((OPTIND -1)) # remove all options from $#
@@ -35,32 +32,42 @@ shift $((OPTIND -1)) # remove all options from $#
 case $(current_os) in
     "macos")
         os="MacOS"
-        CMD="brew install"
+        # Homebrew usually auto-updates, but we can force it
+        UPDATE_CMD="brew update"
+        INSTALL_CMD="brew install"
         ;;
     "arch")
         os="Arch Linux"
-        CMD="sudo pacman -S"
+        UPDATE_CMD="sudo pacman -Sy"
+        INSTALL_CMD="sudo pacman -S"
         ;;
     "ubuntu")
         os="Ubuntu Linux"
-        CMD="sudo apt install"
+        UPDATE_CMD="sudo apt-get update"
+        INSTALL_CMD="sudo apt install"
         ;;
     "fedora")
         os="Fedora Linux"
-        CMD="sudo dnf install"
+        # DNF does this automatically with metadata timers,
+        # but we can force a check if we want to be safe.
+        UPDATE_CMD="true"
+        INSTALL_CMD="sudo dnf install"
         ;;
     *)
         exit_w_error "This OS is not handled yet."
         ;;
 esac
 
-PKG_NAME="$1"
-if [[ -z "$PKG_NAME" ]]; then
-    echo "Error: Missing the package name"
+# Store all arguments as the package list
+PKG_LIST="$*"
+if [[ -z "$PKG_LIST" ]]; then
+    log_error "Error: Missing the package name"
     help
     exit 1
 fi
 
 log_title "Identified OS: $os"
-log_title "Executing: $CMD $PKG_NAME"
-$CMD $PKG_NAME
+log_info "Refreshing package databases: $UPDATE_CMD"
+$UPDATE_CMD
+log_title "Installing the packages: $INSTALL_CMD $PKG_NAME"
+$INSTALL_CMD "$PKG_LIST"
