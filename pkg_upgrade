@@ -26,7 +26,7 @@ shift $((OPTIND -1)) # remove all options from $#
 case $(current_os) in
     "macos")
         os="MacOS"
-        CMD="brew upgrade"
+        CMD="brew update && brew upgrade"
         ;;
     "arch")
         os="Arch Linux"
@@ -34,11 +34,11 @@ case $(current_os) in
         ;;
     "ubuntu")
         os="Ubuntu Linux"
-        CMD="sudo apt upgrade"
+        CMD="sudo apt-get update && sudo apt-get upgrade -y"
         ;;
     "fedora")
         os="Fedora Linux"
-        CMD="sudo dnf upgrade --refresh"
+        CMD="sudo dnf upgrade --refresh -y"
         ;;
     *)
         exit_w_error "This OS is not handled yet."
@@ -47,4 +47,5 @@ esac
 
 log_title "Identified OS: $os"
 log_title "Executing: $CMD"
-$CMD
+# Using bash -c because some commands contain '&&'
+bash -c "$CMD"
