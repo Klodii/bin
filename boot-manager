@@ -1,7 +1,7 @@
 #!/bin/bash -
 SCRIPT_NAME=${0##*/}
 
-function help {
+function show_help {
    cat <<-HMESSAGE
 Handle the EFI boot manager: visualize, reorder and remove entries.
 
@@ -40,10 +40,14 @@ function delete_entry {
     sudo efibootmgr -b "$entry_id" -B
 }
 
+if [[ $# -eq 0 ]]; then
+    show_help
+    exit 0
+fi
 
 while getopts "hlo:d:" option; do
     case $option in
-        h ) help; exit 0;;
+        h ) show_help; exit 0;;
         l ) list_entry; exit 0;;
         o ) order_entries "$OPTARG"; exit 0;;
         d ) delete_entry "$OPTARG"; exit 0;;
@@ -52,3 +56,10 @@ while getopts "hlo:d:" option; do
             exit 1;;
     esac
 done
+shift $((OPTIND - 1))
+
+if [[ $# -gt 0 ]]; then
+    echo "Unexpected argument(s): $*"
+    show_help
+    exit 1
+fi
