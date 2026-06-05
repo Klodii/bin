@@ -1,0 +1,54 @@
+#!/bin/bash -
+SCRIPT_NAME=${0##*/}
+
+function help {
+   cat <<-HMESSAGE
+Handle the EFI boot manager: visualize, reorder and remove entries.
+
+Usage:
+  $SCRIPT_NAME [-h] [-l]
+  $SCRIPT_NAME -o <bootorder>
+  $SCRIPT_NAME -d <bootnum>
+
+Options:
+  -h     Print this help and exit
+  -l     List boot entries
+  -o     Reorder entries (example: 0001,0000)
+  -d     Delete an entry (example: 0006)
+
+Examples:
+  $SCRIPT_NAME -l
+  $SCRIPT_NAME -o 0001,0000
+  $SCRIPT_NAME -d 0006
+HMESSAGE
+}
+
+
+function list_entry {
+    sudo efibootmgr
+}
+function order_entries {
+    # redifine all entry order
+    # entries must be splited by comman (,)
+    local order="$1"
+    sudo efibootmgr -o "$order"
+}
+function delete_entry {
+    local entry_id="$1"
+    read -rp "Delete boot entry $entry_id? [y/N] " answer
+    [[ "$answer" =~ ^[Yy]$ ]] || exit 0
+    sudo efibootmgr -b "$entry_id" -B
+}
+
+
+while getopts "hlo:d:" option; do
+    case $option in
+        h ) help; exit 0;;
+        l ) list_entry; exit 0;;
+        o ) order_entries "$OPTARG"; exit 0;;
+        d ) delete_entry "$OPTARG"; exit 0;;
+        \?)
+            echo "Error: Invalid option"
+            exit 1;;
+    esac
+done
