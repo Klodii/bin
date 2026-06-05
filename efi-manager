@@ -30,12 +30,24 @@ function list_entry {
 function order_entries {
     # redifine all entry order
     # entries must be splited by comman (,)
-    local order="$1"
-    sudo efibootmgr -o "$order"
+    local new_order="$1"
+    current_order=$(efibootmgr | awk -F': ' '/BootOrder/ {print $2}')
+
+    read -rp "Do you wnat to chante the current order ($current_order) with this new order ($new_order)? [y/N] " answer
+    [[ "$answer" =~ ^[Yy]$ ]] || exit 0
+    sudo efibootmgr -o "$new_order"
 }
 function delete_entry {
     local entry_id="$1"
-    read -rp "Delete boot entry $entry_id? [y/N] " answer
+
+    local found_entry
+    found_entry=$(list_entry | grep "^Boot${entry_id}")
+    if [[ -z "$found_entry" ]]; then
+        echo "Boot entry $entry_id not found"
+        return 1
+    fi
+
+    read -rp "Delete boot entry ${found_entry}? [y/N] " answer
     [[ "$answer" =~ ^[Yy]$ ]] || exit 0
     sudo efibootmgr -b "$entry_id" -B
 }
