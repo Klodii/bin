@@ -48,6 +48,11 @@ scan on
 ```bash
 info <MAC-address>
 ```
+
+To stop the scan
+```bash
+scan off
+```
 5. Pair with the device:
 ```bash
 pair <MAC-address>
@@ -62,7 +67,11 @@ trust <MAC-address>
 ```bash
 connect <MAC-address>
 ```
-8. (Optional) To remove/unpair a device:
+8. To check the MAC-address of the connected device
+```bash
+devices Connected
+```
+9. (Optional) To remove/unpair a device:
 ```bash
 remove <MAC-address>
 ```
