@@ -1,8 +1,6 @@
 #!/bin/bash
 source utils
 
-# terminal-notifier is a macos notifier pacakge, if you are on linux you can use
-# notify-send
 MUSIC_DIR="$HOME/my-music"
 
 YT_DW=""
@@ -14,8 +12,16 @@ else
     exit_w_error "Can' download, you have to install youtube-dl or yt-dlp"
 fi
 
+URL="$1"
+
+if [[ "$URL" == *list* ]];then
+    # If the URL contains the list keyword it means we will download all the
+    # items of that list, we want to avoid that.
+    exit_w_error "The url is part of a list of items, please select the direct url to download"
+fi
+
 log_info "Downloading with $YT_DW"
-$YT_DW -x --audio-format mp3 --output "$MUSIC_DIR/%(title)s.%(ext)s" "$1"
+$YT_DW -x --audio-format mp3 --output "$MUSIC_DIR/%(title)s.%(ext)s" "$URL"
 
 if [ $? -eq 0 ]; then
     message='Finished downloading'
@@ -23,6 +29,8 @@ else
     message='Error downloading mp3'
 fi
 
+# terminal-notifier is a macos notifier pacakge, if you are on linux you can use
+# notify-send
 title='mp3-download'
 if is_installed dunst; then
     # pgrep -x dunst kills the notification deamon that we use, in order to send the new notification.
