@@ -1,4 +1,16 @@
 #!/bin/bash -
+
+# In order to use the script by other commands, we have to source the file with
+# the full path
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+if [[ -f "$SCRIPT_DIR/utils" ]]; then
+    source "$SCRIPT_DIR/utils"
+else
+    echo "Error: utils file not found in $SCRIPT_DIR"
+    exit 1
+fi
+
+
 SCRIPT_NAME=${0##*/}  # performed a string manipulation operation to get the script name
 
 function help {

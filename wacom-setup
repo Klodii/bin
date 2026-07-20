@@ -1,5 +1,11 @@
 #!/bin/bash -
-source utils
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+if [[ -f "$SCRIPT_DIR/utils" ]]; then
+    source "$SCRIPT_DIR/utils"
+else
+    echo "Error: utils file not found in $SCRIPT_DIR"
+    exit 1
+fi
 
 HAVE_INSTALLED="false"
 if ! is_installed xinput; then
