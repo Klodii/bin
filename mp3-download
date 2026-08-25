@@ -20,21 +20,23 @@ if [[ "$URL" == *list* ]];then
     exit_w_error "The url is part of a list of items, please select the direct url to download"
 fi
 
-log_info "Downloading with $YT_DW"
+song_title=$($YT_DW --print "%(title)s" "$URL")
+log_info "Downloading: $song_title"
+log_info "Using $YT_DW"
 $YT_DW -x --audio-format mp3 --output "$MUSIC_DIR/%(title)s.%(ext)s" "$URL"
 
 if [ $? -eq 0 ]; then
-    message='Finished downloading'
+    message="Completed the download of '$song_title'"
 else
     message='Error downloading mp3'
 fi
 
 # terminal-notifier is a macos notifier pacakge, if you are on linux you can use
 # notify-send
-title='mp3-download'
+notify_title='mp3-download'
 if is_installed dunst; then
     # pgrep -x dunst kills the notification deamon that we use, in order to send the new notification.
-    pgrep -x dunst && notify-send "$title" "$message"
+    pgrep -x dunst && notify-send "$notify_title" "$message"
 elif is_installed terminal-notifier; then
-    terminal-notifier -title "$title" -message "$message"
+    terminal-notifier -title "$notify_title" -message "$message"
 fi
