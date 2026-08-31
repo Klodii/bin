@@ -21,7 +21,7 @@ if [[ "$URL" == *list* ]];then
 fi
 
 song_title=$($YT_DW --print "%(title)s" "$URL")
-log_info "Downloading: $song_title"
+log_info "Downloading: ${YELLOW}${song_title}${NC}"
 log_info "Using $YT_DW"
 $YT_DW -x --audio-format mp3 --output "$MUSIC_DIR/%(title)s.%(ext)s" "$URL"
 
