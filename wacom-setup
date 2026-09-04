@@ -44,6 +44,13 @@ if hash nvim 2> /dev/null ; then
     log_info "The new pressure is: $NEW_PRESSURE"
     log_info "Now the pen sends the maximum pressure all the time, like a mouse"
 
+    # Pen button identifiers
+    # Button 1 = pen tip
+    # Button 2 = lower pen button
+    # Button 3 = upper pen button
+    xsetwacom set "$PEN_DEVICE_NAME" Button 3 "key shift e"
+    log_info "Set the upper pen butto to: shift+e (GIMP shortcut to eraser)"
+
     log_title "Setting Express keys..."
     # keyshortcut for GIMP usage
     PAD_DEVICE_NAME="Wacom Intuos BT S Pad pad"
