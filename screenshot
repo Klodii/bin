@@ -1,0 +1,39 @@
+#!/bin/bash
+
+SCRIPT_NAME=${0##*/}
+
+function help {
+   cat <<-HMESSAGE
+Take a screenshot of a selected region, save it in /tmp,
+and copy it to the clipboard.
+
+Usage:
+  $SCRIPT_NAME [-hg]
+
+Options:
+  -h    Show this help message and exit.
+  -g    Open the screenshot with GIMP
+HMESSAGE
+}
+
+OPEN_GIMP=false
+while getopts "hg" option; do
+    case $option in
+        h ) help; exit 0;;
+        g ) OPEN_GIMP=true;;
+        \?)
+            echo "Error: Invalid option"
+            exit 1;;
+    esac
+done
+
+file="/tmp/screenshot-$(date +%Y%m%d-%H%M%S).png"
+
+maim -s | tee "$file" | xclip -selection clipboard -t image/png -i
+
+if [ $? -eq 0 ]; then
+    notify-send -i "$file" "Screenshot" "Saved to $file and copied to clipboard"
+    if $OPEN_GIMP; then
+        gimp "$file"
+    fi
+fi
