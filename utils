@@ -32,14 +32,30 @@ export BG_WHITE="\033[47m"
 
 export NC="\033[0m" # No Color
 
-function log_title {
+function print_red {
+    printf "${RED}$1${NC}\n"
+}
+function print_green {
+    printf "${GREEN}$1${NC}\n"
+}
+function print_yellow {
     printf "${YELLOW}$1${NC}\n"
 }
-function log_info {
+function print_blue {
     printf "${BLUE}$1${NC}\n"
 }
+function print_cyan {
+    printf "${CYAN}$1${NC}\n"
+}
+
+function log_title {
+    print_yellow "$1"
+}
+function log_info {
+    print_yellow "$1"
+}
 function log_error {
-    printf "${RED}$1${NC}\n"
+    print_red "$1"
 } >&2 # redirect to STDERR
 
 function exit_w_error {

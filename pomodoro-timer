@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+source "$SCRIPT_DIR/utils"
+
 WORK_TIME=${1:-25}
 SHORT_BREAK=${2:-5}
 LONG_BREAK=${3:-15}
@@ -56,7 +59,7 @@ run_timer() {
     local total_seconds=$((duration_minutes * 60))
     local elapsed=0
 
-    echo -e "\n\033[1;36m=== Starting $label ($duration_minutes min) ===\033[0m"
+    print_cyan "\n=== Starting $label ($duration_minutes min) ==="
 
     while [ $elapsed -lt $total_seconds ]; do
         local remaining=$((total_seconds - elapsed))
@@ -86,11 +89,11 @@ run_timer() {
 # Main Loop
 cycle=1
 
-echo -e "\033[1;32m🍅 Pomodoro Timer Started!\033[0m"
+print_green "🍅 Pomodoro Timer Started!"
 echo "Work: ${WORK_TIME}m | Short Break: ${SHORT_BREAK}m | Long Break: ${LONG_BREAK}m"
 
 # catch a Ctrl+c and exit
-trap "echo -e '\n\n\033[1;31mPomodoro timer stopped.\033[0m'; exit 0" INT
+trap "print_red '\n\nPomodoro timer stopped.'; exit 0" INT
 
 while true; do
     notify "Pomodoro" "Session $cycle started! Focus for $WORK_TIME minutes."
