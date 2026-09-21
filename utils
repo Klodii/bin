@@ -46,6 +46,27 @@ function exit_w_error {
     log_error "$1" && exit 1
 } >&2 # redirect to STDERR
 
+# Notify the user of a script error via notifications.
+#
+# Arguments:
+#   $1 - The name of the script triggering the error.
+#   $2 - The error message body.
+#
+# Returns:
+#   0 on success, non-zero if notification fails.
+function notify_error {
+    local script_name="$1"
+    local message="$2"
+    local notify_title="Error $script_name"
+
+    if is_installed dunst; then
+        notify-send -u critical "$notify_title" "$message"
+    elif is_installed terminal-notifier; then
+        # terminal-notifier is a macos notifier pacakge
+        terminal-notifier -title "$notify_title" -message "$message"
+    fi
+}
+
 function is_installed {
     # Checks if a command or program is installed and accessible in the system's PATH.
     #
