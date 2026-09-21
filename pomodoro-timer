@@ -1,0 +1,108 @@
+#!/bin/bash
+
+WORK_TIME=${1:-25}
+SHORT_BREAK=${2:-5}
+LONG_BREAK=${3:-15}
+CYCLES_BEFORE_LONG_BREAK=4
+
+
+show_help() {
+    cat << EOF
+Usage: $(basename "$0") [WORK_MINUTES] [SHORT_BREAK_MINUTES] [LONG_BREAK_MINUTES] [OPTIONS]
+
+A terminal-based Pomodoro timer with progress bar and desktop notifications.
+
+Arguments:
+  WORK_MINUTES         Work session duration in minutes (default: 25)
+  SHORT_BREAK_MINUTES  Short break duration in minutes (default: 5)
+  LONG_BREAK_MINUTES   Long break duration in minutes (default: 15)
+
+Options:
+  -h, --help           Show this help message and exit
+
+Examples:
+  $(basename "$0")              Run with default times (25m work, 5m break, 15m long break)
+  $(basename "$0") 50 10 20     50 min work, 10 min short break, 20 min long break
+  $(basename "$0") 15           15 min work, default breaks (5m / 15m)
+
+Controls:
+  Ctrl+C               Stop the timer gracefully
+EOF
+}
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    show_help
+    exit 0
+fi
+
+
+notify() {
+    local title="$1"
+    local message="$2"
+
+    if command -v notify-send &> /dev/null; then
+        notify-send "$title" "$message"
+    elif command -v osascript &> /dev/null; then
+        osascript -e "display notification \"$message\" with title \"$title\""
+    fi
+
+    # Terminal bell sound
+    echo -e "\a"
+}
+
+# Function to format and display the timer countdown
+run_timer() {
+    local duration_minutes=$1
+    local label=$2
+    local total_seconds=$((duration_minutes * 60))
+    local elapsed=0
+
+    echo -e "\n\033[1;36m=== Starting $label ($duration_minutes min) ===\033[0m"
+
+    while [ $elapsed -lt $total_seconds ]; do
+        local remaining=$((total_seconds - elapsed))
+        local mins=$((remaining / 60))
+        local secs=$((remaining % 60))
+
+        # Progress bar setup
+        local percent=$((elapsed * 100 / total_seconds))
+        local filled=$((percent / 5))
+        local empty=$((20 - filled))
+
+        local bar=$(printf "%0.s#" $(seq 1 $filled 2>/dev/null))
+        local space=$(printf "%0.s-" $(seq 1 $empty 2>/dev/null))
+
+        # Print timer to same terminal line
+        printf "\r\033[K\033[1;33m[%02d:%02d]\033[0m [%s%s] %d%% - %s" \
+            "$mins" "$secs" "$bar" "$space" "$percent" "$label"
+
+        sleep 1
+        ((elapsed++))
+    done
+
+    # Print 100% completion state
+    printf "\r\033[K\033[1;32m[00:00]\033[0m [####################] 100%% - %s Done!\n" "$label"
+}
+
+# Main Loop
+cycle=1
+
+echo -e "\033[1;32m🍅 Pomodoro Timer Started!\033[0m"
+echo "Work: ${WORK_TIME}m | Short Break: ${SHORT_BREAK}m | Long Break: ${LONG_BREAK}m"
+
+# catch a Ctrl+c and exit
+trap "echo -e '\n\n\033[1;31mPomodoro timer stopped.\033[0m'; exit 0" INT
+
+while true; do
+    notify "Pomodoro" "Session $cycle started! Focus for $WORK_TIME minutes."
+    run_timer $WORK_TIME "Work Session $cycle"
+
+    if [ $((cycle % CYCLES_BEFORE_LONG_BREAK)) -eq 0 ]; then
+        notify "Pomodoro" "Great job! Time for a $LONG_BREAK minute long break."
+        run_timer $LONG_BREAK "Long Break"
+    else
+        notify "Pomodoro" "Take a $SHORT_BREAK minute break."
+        run_timer $SHORT_BREAK "Short Break"
+    fi
+
+    ((cycle++))
+done
