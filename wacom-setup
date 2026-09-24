@@ -10,12 +10,32 @@ fi
 HAVE_INSTALLED="false"
 if ! is_installed xinput; then
     log_info "Installing xinput"
-    sudo dnf install -y xinput
+    case $(current_os) in
+        "ubuntu")
+            sudo apt install xinput
+            ;;
+        "fedora")
+            sudo dnf install -y xinput
+            ;;
+        *)
+            exit_w_error "This OS is not handled yet."
+            ;;
+    esac
     HAVE_INSTALLED="true"
 fi
 if ! is_installed xsetwacom; then
-    log_info "Installing xorg-x11-drv-wacom"
-    sudo dnf install -y xorg-x11-drv-wacom
+    log_info "Installing wacom command"
+    case $(current_os) in
+        "ubuntu")
+            sudo apt install xserver-xorg-input-wacom
+            ;;
+        "fedora")
+            sudo dnf install -y xorg-x11-drv-wacom
+            ;;
+        *)
+            exit_w_error "This OS is not handled yet."
+            ;;
+    esac
     HAVE_INSTALLED="true"
 fi
 [[ $HAVE_INSTALLED == "true" ]] && { log_title "Please restart your machine in order to refresh the correct device names."; exit 0; }
