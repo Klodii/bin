@@ -45,7 +45,7 @@ case $(current_os) in
         os='Arch Linux'
         CMD="checkupdates 2>/dev/null | wc -l"
         ;;
-    "Ubuntu")
+    "ubuntu")
         os='Ubuntu Linux'
         CMD="apt list --upgradable 2>/dev/null | grep upgradable | wc -l"
         ;;
