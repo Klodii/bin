@@ -6,10 +6,11 @@ else
     echo "Error: utils file not found in $SCRIPT_DIR"
     exit 1
 fi
+SCRIPT_NAME=${0##*/}
 
 HAVE_INSTALLED="false"
 if ! is_installed xinput; then
-    log_info "Installing xinput"
+    print_blue "Installing xinput"
     case $(current_os) in
         "ubuntu")
             sudo apt install xinput
@@ -18,13 +19,13 @@ if ! is_installed xinput; then
             sudo dnf install -y xinput
             ;;
         *)
-            exit_w_error "This OS is not handled yet."
+            exit_w_error_and_notify "$SCRIPT_NAME" "This OS is not handled yet."
             ;;
     esac
     HAVE_INSTALLED="true"
 fi
 if ! is_installed xsetwacom; then
-    log_info "Installing wacom command"
+    print_blue "Installing wacom command"
     case $(current_os) in
         "ubuntu")
             sudo apt install xserver-xorg-input-wacom
@@ -33,17 +34,17 @@ if ! is_installed xsetwacom; then
             sudo dnf install -y xorg-x11-drv-wacom
             ;;
         *)
-            exit_w_error "This OS is not handled yet."
+            exit_w_error_and_notify "$SCRIPT_NAME" "This OS is not handled yet."
             ;;
     esac
     HAVE_INSTALLED="true"
 fi
-[[ $HAVE_INSTALLED == "true" ]] && { log_title "Please restart your machine in order to refresh the correct device names."; exit 0; }
+[[ $HAVE_INSTALLED == "true" ]] && { print_yellow "Please restart your machine in order to refresh the correct device names."; exit 0; }
 
 INPUT_DEVICES=$(xinput)
 # The name of the device might changes from computer to computer
 PEN_DEVICE_NAME="Wacom Intuos BT S Pen stylus"
-log_info "Searching for device name $PEN_DEVICE_NAME"
+print_blue "Searching for device name $PEN_DEVICE_NAME"
 if [[ "$INPUT_DEVICES" != *"$PEN_DEVICE_NAME"* ]]; then
     SCRIPT_NAME=${0##*/}
     error_message="Device '$PEN_DEVICE_NAME' not found. The name migh have change, run 'xinput' and search for it"
@@ -54,42 +55,40 @@ fi
 # Map Wacom pet to the main monitor
 MONITOR="DP-2"
 xinput map-to-output "$PEN_DEVICE_NAME" $MONITOR
-log_info "Wacom mapped to monitor $MONITOR"
+print_blue "Wacom mapped to monitor $MONITOR"
 
 
-if hash nvim 2> /dev/null ; then
-    log_title "Changing pressure..."
+if hash xsetwacom 2> /dev/null ; then
+    print_yellow "Changing pressure..."
     CURRENT_PRESSURE=$(xsetwacom --get "$PEN_DEVICE_NAME" PressureCurve)
-    log_info "The current pressure is: $CURRENT_PRESSURE"
+    print_blue "The current pressure is: $CURRENT_PRESSURE"
 
     # make the pen send maximum pressure all the time
     xsetwacom --set "$PEN_DEVICE_NAME" PressureCurve 0 100 0 100
 
     NEW_PRESSURE=$(xsetwacom --get "$PEN_DEVICE_NAME" PressureCurve)
-    log_info "The new pressure is: $NEW_PRESSURE"
-    log_info "Now the pen sends the maximum pressure all the time, like a mouse"
+    print_blue "The new pressure is: $NEW_PRESSURE"
+    print_blue "Now the pen sends the maximum pressure all the time, like a mouse"
 
     # Pen button identifiers
     # Button 1 = pen tip
     # Button 2 = lower pen button
     # Button 3 = upper pen button
-    xsetwacom set "$PEN_DEVICE_NAME" Button 3 "key shift e"
-    log_info "Set the upper pen butto to: shift+e (GIMP shortcut to eraser)"
+    # xsetwacom set "$PEN_DEVICE_NAME" Button 3 "key shift e"
+    # print_blue "Set the upper pen butto to: shift+e (GIMP shortcut to eraser)"
 
-    log_title "Setting Express keys..."
+    print_yellow "Setting Express keys..."
     # keyshortcut for GIMP usage
     PAD_DEVICE_NAME="Wacom Intuos BT S Pad pad"
     xsetwacom set "$PAD_DEVICE_NAME" Button 1 "key ctrl n" # create new image
-    log_info "Express key 1 mapped to: crt+n (GIMP create new image)"
+    print_blue "Express key 1 mapped to: crt+n (GIMP create new image)"
     xsetwacom set "$PAD_DEVICE_NAME" Button 2 "key shift ctrl n" # create new layer
-    log_info "Express key 2 mapped to: shift+crt+n (GIMP create new layer)"
+    print_blue "Express key 2 mapped to: shift+crt+n (GIMP create new layer)"
     xsetwacom set "$PAD_DEVICE_NAME" Button 3 "key f2" # open "color dialog", this is a custom shortuct setted by me on GIMP
-    log_info "Express key 3 mapped to: f2 (GIMP open color dialog)"
+    print_blue "Express key 3 mapped to: f2 (GIMP open color dialog)"
     xsetwacom set "$PAD_DEVICE_NAME" Button 8 "key shift ctrl h" # "Hide docks" (toggle tools windows), this is a custom shortuct setted by me on GIMP
-    log_info "Express key 8 mapped to: shift+crt+h (GIMP toggle tools windows)"
+    print_blue "Express key 8 mapped to: shift+crt+h (GIMP toggle tools windows)"
 
 else
-    log_error "xsetwacom is not installed"
+    exit_w_error_and_notify "$SCRIPT_NAME" "xsetwacom is not installed"
 fi
-
-

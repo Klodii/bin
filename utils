@@ -59,7 +59,15 @@ function log_error {
 } >&2 # redirect to STDERR
 
 function exit_w_error {
-    log_error "$1" && exit 1
+    print_red "$1" && exit 1
+} >&2 # redirect to STDERR
+
+function exit_w_error_and_notify {
+    local script_name="$1"
+    local message="$2"
+    print_red "$message"
+    notify_error "$script_name" "$message"
+    exit 1
 } >&2 # redirect to STDERR
 
 # Notify the user of a script error via notifications.
