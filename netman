@@ -19,14 +19,25 @@ HMESSAGE
 
 
 function connect {
+    # IFS is used by 'select' to understand to which character to split the
+    # string, the default is space. We cannot leave it, because if a network has
+    # many spaces, it will be splitted in many parts.
+    # Only for this small part of code we will change it to \n (newline)
+    OLD_IFS="$IFS"
+    IFS=$'\n'
+
     networks="$(nmcli --fields SSID,SIGNAL,BARS --terse dev wifi list)"
     log_info "Which network do you want to connect?"
     select net in $networks
+
     do
         network_name_regex='(^.*):.*:.*$'
         selected_network=$(echo "$net" | sed -E "s/$network_name_regex/\1/")
         break
     done
+    # Restore original IFS
+    IFS="$OLD_IFS"
+
     log_info "You selected: $selected_network"
     read -p "Enter the password: " password
     read -p "Give a name to this connection: " con_name
