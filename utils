@@ -52,7 +52,7 @@ function log_title {
     print_yellow "$1"
 }
 function log_info {
-    print_yellow "$1"
+    print_blue "$1"
 }
 function log_error {
     print_red "$1"
