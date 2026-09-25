@@ -1,8 +1,20 @@
 #!/bin/bash
 
-# This is a draft
-# the script uses mpv as a music player
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+if [[ -f "$SCRIPT_DIR/utils" ]]; then
+    source "$SCRIPT_DIR/utils"
+else
+    echo "Error: utils file not found in $SCRIPT_DIR"
+    exit 1
+fi
+SCRIPT_NAME=${0##*/}
 
-
-MUSIC_FOLDER="$HOME/my-music"
-mpv --vo=null --video=no --no-video --term-osd-bar --no-resume-playback --shuffle "$MUSIC_FOLDER"
+if is_installed mpc; then
+    mpc clear
+    mpc listall | mpc add
+    mpc shuffle
+    mpc play
+else
+    MUSIC_FOLDER="$HOME/my-music"
+    mpv --vo=null --video=no --no-video --term-osd-bar --no-resume-playback --shuffle "$MUSIC_FOLDER"
+fi

@@ -23,7 +23,7 @@ fi
 song_title=$($YT_DW --print "%(title)s" "$URL")
 log_info "Downloading: ${YELLOW}${song_title}${NC}"
 log_info "Using $YT_DW"
-$YT_DW -x --audio-format mp3 --output "$MUSIC_DIR/%(title)s.%(ext)s" "$URL"
+$YT_DW -x --audio-format mp3 --embed-metadata --output "$MUSIC_DIR/%(title)s.%(ext)s" "$URL"
 
 if [ $? -eq 0 ]; then
     message="Completed the download of '$song_title'"
