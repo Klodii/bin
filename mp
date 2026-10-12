@@ -84,12 +84,12 @@ else
             $NOTIFY "MusicPlayer" "Song Paused";
         }
         function prev {
-            mpc prev
-            $NOTIFY "MusicPlayer" "Changed to the previous song";
+            song_title=$(mpc prev | head -n 1)
+            $NOTIFY "MusicPlayer" "Changed to the previous song: $song_title";
         }
         function next {
-            mpc next
-            $NOTIFY "MusicPlayer" "Changed to the next song";
+            song_title=$(mpc next | head -n 1)
+            $NOTIFY "MusicPlayer" "Changed to the next song: $song_title";
         }
 
         function current_song { mpc status; }
