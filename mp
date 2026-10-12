@@ -48,6 +48,16 @@ if [ "$(current_os)" = 'macos' ]; then
     exit_w_error "This OS is not yet handled"
 else
     if is_installed mpc; then
+        function is_song_running {
+            is_song_playing=$(mpc status | grep -q '\[playing\]')
+            is_song_paused=$(mpc status | grep -q '\[paused\]')
+            is_song_playing ] || [ is_song_paused ]
+        }
+        function get_song_title {
+            if is_song_running ;then
+                mpc status | head -n 1
+            fi
+        }
         function start_player {
             mpc clear
             mpc listall | mpc add
@@ -60,8 +70,13 @@ else
             $NOTIFY "MusicPlayer" "Stopped the player";
         }
         function play {
-            mpc play
-            $NOTIFY "MusicPlayer" "Playing song";
+            if is_song_running; then
+                song_title=$(get_song_title)
+                mpc play
+                $NOTIFY "MusicPlayer" "Playing $song_title";
+            else
+                start_player
+            fi
         }
         function pause {
             mpc pause
