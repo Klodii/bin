@@ -63,7 +63,7 @@ else
         function is_song_running {
             is_song_playing=$(mpc status | grep -q '\[playing\]')
             is_song_paused=$(mpc status | grep -q '\[paused\]')
-            [ is_song_playing ] || [ is_song_paused ]
+            [ $is_song_playing ] || [ $is_song_paused ]
         }
         function get_song_title {
             if is_song_running ;then
